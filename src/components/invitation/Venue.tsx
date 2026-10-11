@@ -11,9 +11,9 @@ export function Venue({ venue }: { venue: NonNullable<InvitationData["venue"]> }
 
   return (
     <div>
-      <p className="mb-2 font-display text-xl font-semibold text-foreground">{venue.name}</p>
+      <p className="mb-2 font-display text-2xl font-medium text-ink">{venue.name}</p>
       {venue.address && <p className="whitespace-pre-line text-muted">{venue.address}</p>}
-      <div className="mx-auto mt-8 overflow-hidden rounded-xl border border-field-border bg-field shadow-[0_10px_28px_rgba(60,70,50,0.15)] md:max-w-xl">
+      <div className="mx-auto mt-8 overflow-hidden rounded-[1.4rem] border-4 border-white/90 bg-field shadow-[0_16px_36px_-18px_rgba(110,80,130,0.55)] md:max-w-xl">
         <iframe
           title={t.mapOf(venue.name)}
           src={embed}
@@ -26,7 +26,7 @@ export function Venue({ venue }: { venue: NonNullable<InvitationData["venue"]> }
         href={mapsUrl}
         target="_blank"
         rel="noreferrer"
-        className="mt-8 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-cream transition hover:bg-primary/90"
+        className="mt-8 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-[0_10px_24px_-8px_rgba(143,106,143,0.7)] transition hover:-translate-y-0.5 md:text-sm rtl:text-sm"
       >
         {t.viewOnMaps}
       </a>

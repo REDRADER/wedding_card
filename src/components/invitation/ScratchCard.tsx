@@ -156,7 +156,7 @@ export function ScratchCard({
     <div className="flex flex-col items-center">
       <div
         ref={wrapRef}
-        className="relative aspect-[1/0.95] w-[210px] drop-shadow-[0_10px_18px_rgba(60,70,50,0.28)] md:w-[240px]"
+        className="relative aspect-[1/0.95] w-[210px] drop-shadow-[0_12px_20px_rgba(140,90,130,0.3)] md:w-[240px]"
       >
         <svg viewBox="0 0 1 1" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden>
           <defs>
@@ -178,7 +178,7 @@ export function ScratchCard({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center pb-6 text-center">
           <p className="mb-1 font-calligraphic text-xl italic text-primary">{label}</p>
-          <p className="font-display text-base font-bold text-foreground">{formatFullDate(date, locale)}</p>
+          <p className="font-display text-base font-semibold text-foreground">{formatFullDate(date, locale)}</p>
           <p className="font-calligraphic text-sm text-primary">{formatWeekday(date, locale)}</p>
           <p className="mt-1 text-[10px] text-muted rtl:text-xs">{formatTime(time, locale)}</p>
         </div>
@@ -211,7 +211,7 @@ export function ScratchCard({
             last.current = null;
           }}
         />
-        {revealed && <Confetti />}
+        {revealed && <Confetti colors={theme.confetti} />}
       </div>
       {!revealed && (
         <p className="mt-4 text-xs uppercase tracking-[0.2em] text-muted/80 rtl:text-sm">{t.scratchHint}</p>
@@ -220,16 +220,14 @@ export function ScratchCard({
   );
 }
 
-const CONFETTI_COLORS = ["#b5c0a3", "#4a5c3d", "#e6d3a3", "#f3ede0", "#c9a96e"];
-
-function Confetti() {
+function Confetti({ colors }: { colors: string[] }) {
   const [pieces] = useState(() =>
     Array.from({ length: 36 }, (_, i) => ({
       id: i,
       x: (Math.random() - 0.5) * 320,
       y: -Math.random() * 220 - 40,
       r: Math.random() * 540 - 270,
-      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+      color: colors[i % colors.length],
       w: 5 + Math.random() * 5,
     })),
   );
@@ -238,8 +236,8 @@ function Confetti() {
       {pieces.map((p) => (
         <motion.span
           key={p.id}
-          className="absolute rounded-[1px]"
-          style={{ width: p.w, height: p.w * 0.45, backgroundColor: p.color }}
+          className="absolute rounded-full"
+          style={{ width: p.w, height: p.w * 0.6, backgroundColor: p.color }}
           initial={{ x: 0, y: 0, opacity: 1, rotate: 0 }}
           animate={{ x: p.x, y: [0, p.y, p.y + 260], opacity: [1, 1, 0], rotate: p.r }}
           transition={{ duration: 2.2, ease: "easeOut" }}

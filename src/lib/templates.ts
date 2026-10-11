@@ -2,23 +2,7 @@ import type { CSSProperties } from "react";
 import type { TemplateId } from "./invitation";
 
 export type TemplateTheme = {
-  assets: {
-    /** Portrait intro video. Its first frame is the "tap to open" screen, its last frame the hero. */
-    introVideo: string;
-    introPoster: string;
-    introFinalFrame: string;
-    /** Top of the content area. */
-    welcomeBg: string;
-    /** Repeats vertically below the welcome background. */
-    generalBg: string;
-    /** Anchored to the bottom of the closing section. */
-    endBg: string;
-    music: string;
-  };
-  /** welcomeBg height / width, used to start the repeating background right below it. */
-  welcomeBgRatio: number;
-  /** Seconds after the intro starts playing before the hero text fades in. */
-  heroTextDelay: number;
+  assets: { music: string };
   /** Exposed as CSS variables and mapped to Tailwind colors in globals.css. */
   colors: {
     ink: string;
@@ -32,44 +16,48 @@ export type TemplateTheme = {
     field: string;
     fieldBorder: string;
     pageBg: string;
+    /** Pastel washes for cards, tiles and patterns. */
+    blush: string;
+    lilac: string;
+    mint: string;
+    sky: string;
+    butter: string;
   };
   scratch: { gradient: [string, string, string]; speck: [string, string, string]; sparkle: string };
+  confetti: string[];
 };
 
-const royalGrace: TemplateTheme = {
-  assets: {
-    introVideo: "/templates/royal-grace/intro.mp4",
-    introPoster: "/templates/royal-grace/intro-poster.jpg",
-    introFinalFrame: "/templates/royal-grace/intro-final.jpg",
-    welcomeBg: "/templates/royal-grace/welcome-bg.jpg",
-    generalBg: "/templates/royal-grace/general-bg.jpg",
-    endBg: "/templates/royal-grace/end-bg.jpg",
-    music: "/templates/royal-grace/music.mp3",
-  },
-  welcomeBgRatio: 1322 / 941,
-  heroTextDelay: 6,
+// Pastel, modern-Japanese: sakura, wisteria, matcha and a vermilion hanko seal.
+const sakura: TemplateTheme = {
+  assets: { music: "/templates/sakura/music.mp3" },
   colors: {
-    ink: "#3b4432",
-    names: "#3e5634",
-    primary: "#4a5c3d",
-    foreground: "#27331f",
-    muted: "#5f6d55",
-    accent: "#8a7a4e",
-    divider: "#6b7d55",
-    cream: "#faf9f4",
-    field: "#f3eadb",
-    fieldBorder: "#d9cfbd",
-    pageBg: "#d6c5ac",
+    ink: "#463f53",
+    names: "#4f3f62",
+    primary: "#8f6a8f",
+    foreground: "#3d3648",
+    muted: "#776d84",
+    accent: "#e2848f",
+    divider: "#c9b6d4",
+    cream: "#fffaf7",
+    field: "#f8eff4",
+    fieldBorder: "#ead9e4",
+    pageBg: "#fbf4f2",
+    blush: "#f9d8df",
+    lilac: "#e4dbf4",
+    mint: "#d4ecdf",
+    sky: "#d4e7f5",
+    butter: "#fbefd1",
   },
   scratch: {
-    gradient: ["#eee6d2", "#9aa584", "#4a5540"],
-    speck: ["238, 230, 210", "154, 165, 132", "74, 85, 64"],
-    sparkle: "247, 242, 230",
+    gradient: ["#fde4ea", "#e9c8de", "#bfb2e3"],
+    speck: ["255, 240, 245", "233, 200, 222", "191, 178, 227"],
+    sparkle: "255, 255, 255",
   },
+  confetti: ["#f7c6d2", "#e2848f", "#d9cdf2", "#c8e6d5", "#fbe6b8"],
 };
 
 const TEMPLATES: Record<TemplateId, TemplateTheme> = {
-  "royal-grace": royalGrace,
+  sakura,
 };
 
 export function getTheme(id: TemplateId): TemplateTheme {
@@ -90,5 +78,10 @@ export function themeStyle(theme: TemplateTheme): CSSProperties {
     "--t-field": c.field,
     "--t-field-border": c.fieldBorder,
     "--t-page-bg": c.pageBg,
+    "--t-blush": c.blush,
+    "--t-lilac": c.lilac,
+    "--t-mint": c.mint,
+    "--t-sky": c.sky,
+    "--t-butter": c.butter,
   } as CSSProperties;
 }

@@ -5,6 +5,7 @@ import { formatNumber, zonedToEpoch } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 
 const UNITS = [86_400_000, 3_600_000, 60_000, 1000];
+const TILE_TONES = ["bg-blush", "bg-lilac", "bg-mint", "bg-sky"];
 
 export function Countdown({ date, time, timezone }: { date: string; time: string; timezone: string }) {
   const { t, locale } = useI18n();
@@ -33,14 +34,16 @@ export function Countdown({ date, time, timezone }: { date: string; time: string
 
   return (
     <div className="flex justify-center gap-2 sm:gap-4" role="timer" aria-live="off">
-      {values.map(({ label, value }) => (
+      {values.map(({ label, value }, i) => (
         <div key={label} className="flex flex-col items-center">
-          <div className="flex min-w-14 items-center justify-center rounded-lg border border-field-border/80 bg-field/70 px-2 py-2 shadow-[inset_0_1px_3px_rgba(60,70,50,0.12),0_2px_6px_rgba(60,70,50,0.08)] sm:min-w-20 sm:py-3 md:min-w-24">
-            <span className="font-display text-2xl font-bold tabular-nums text-foreground sm:text-4xl md:text-5xl">
+          <div
+            className={`flex aspect-square min-w-16 items-center justify-center rounded-2xl border border-white/90 ${TILE_TONES[i]} shadow-[0_10px_24px_-14px_rgba(110,80,130,0.55)] sm:min-w-20 md:min-w-24`}
+          >
+            <span className="font-display text-2xl font-medium tabular-nums text-ink sm:text-4xl md:text-5xl">
               {value}
             </span>
           </div>
-          <p className="mt-2 text-[10px] uppercase tracking-wider text-muted sm:text-xs rtl:text-xs sm:rtl:text-sm">
+          <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-muted sm:text-xs rtl:text-xs sm:rtl:text-sm">
             {label}
           </p>
         </div>
