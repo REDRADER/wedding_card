@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/invite/[slug]">):
 export default function InvitePage({ params }: PageProps<"/invite/[slug]">) {
   // URL data stays behind Suspense so the route's shell can be served instantly.
   return (
-    <Suspense fallback={<div className="h-svh bg-[#fbf4f2]" />}>
+    <Suspense fallback={<div className="h-svh bg-[#0f3d33]" />}>
       <Invitation params={params} />
     </Suspense>
   );

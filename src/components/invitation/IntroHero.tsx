@@ -5,29 +5,30 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import type { Person } from "@/lib/invitation";
-import { HankoSeal, SakuraBranch, Seigaiha } from "./Decor";
+import { ArchFrame, ARCH_PATH, CoupleIllustration, Crescent, FloralSwag, Lantern, Medallion, Skyline } from "./Decor";
 import { Ornament } from "./Section";
 
 type Phase = "closed" | "opening" | "revealed";
 
 const ease = [0.16, 1, 0.3, 1] as const;
-const DOOR_SECONDS = 1.7;
-/** The names start appearing while the doors are still sliding. */
-const REVEAL_AFTER_MS = 1100;
+const DOOR_SECONDS = 2;
+/** The names start appearing while the doors are still swinging. */
+const REVEAL_AFTER_MS = 1200;
+
+export const BISMILLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
 export function IntroHero({
   headline,
   first,
   second,
-  dateLabel,
+  bismillah,
   onOpen,
   onReveal,
 }: {
   headline?: string;
   first: Person;
   second: Person;
-  /** Shown vertically along the edge, e.g. "January 31, 2027". */
-  dateLabel: string;
+  bismillah: boolean;
   /** Fired on the user's tap, so audio can start inside the gesture. */
   onOpen: () => void;
   /** Fired when the hero text appears and the page may scroll. */
@@ -56,67 +57,87 @@ export function IntroHero({
   const initials: [string, string] = [[...first.name][0] ?? "", [...second.name][0] ?? ""];
 
   return (
-    <section className="relative flex h-svh min-h-[600px] w-full items-center justify-center overflow-hidden bg-cream">
-      {/* Pastel sky with drifting color, paper grain and a soft sun. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-blush/90 via-cream to-lilac/80" />
-      <div className="animate-drift absolute -left-1/3 top-[6%] size-[80vmin] rounded-full bg-sky/80 blur-3xl" />
-      <div
-        className="animate-drift absolute -right-1/3 bottom-[14%] size-[70vmin] rounded-full bg-mint/80 blur-3xl"
-        style={{ animationDelay: "-7s" }}
+    <section className="relative flex h-svh min-h-[620px] w-full flex-col items-center justify-center overflow-hidden bg-emerald [perspective:1600px]">
+      {/* Night sky: pattern, glow, crescent, lanterns and a garland across the top. */}
+      <div className="islamic-pattern absolute inset-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(230,201,126,0.22),transparent_62%)]" />
+      <Skyline className="absolute inset-x-0 bottom-0 h-[22%] w-full opacity-80" />
+      <FloralSwag className="absolute inset-x-0 top-0 h-10 w-full md:h-14" />
+      <Lantern className="animate-lantern absolute left-[6%] top-0 w-10 md:w-14" chain={56} />
+      <Lantern
+        className="animate-lantern absolute right-[6%] top-0 w-10 md:w-14"
+        chain={30}
+        style={{ animationDelay: "-2.5s" }}
       />
-      <div className="washi absolute inset-0 opacity-25 mix-blend-multiply" />
-      <div className="absolute left-1/2 top-[45%] size-[min(80vw,460px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff_0%,var(--color-blush)_58%,#f2bccb_100%)] opacity-80" />
-      <div className="absolute left-1/2 top-[45%] size-[min(88vw,510px)] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90" />
-
-      <SakuraBranch className="absolute -right-3 -top-1 w-[80vw] max-w-[460px]" />
-      <SakuraBranch className="absolute -left-4 bottom-[13%] w-[50vw] max-w-[280px] -scale-100 opacity-90" />
-      <Seigaiha className="absolute inset-x-0 bottom-0 h-[15%] w-full [mask-image:linear-gradient(to_bottom,transparent,black_40%)]" />
-
-      <p className="vertical-text absolute left-4 top-1/2 -translate-y-1/2 font-body text-[11px] uppercase tracking-[0.5em] text-muted md:left-8 rtl:hidden">
-        {t.weddingInvitation}
-      </p>
-      <p className="vertical-text absolute right-4 top-1/2 -translate-y-1/2 font-display text-xs tracking-[0.35em] text-muted md:right-8 rtl:hidden">
-        {dateLabel}
-      </p>
+      <Crescent className="absolute right-[22%] top-[9%] size-7 text-gold-light/80 md:size-9" />
 
       <motion.div
-        className="pointer-events-none relative -top-4 z-10 flex w-full flex-col items-center px-10 text-center text-ink"
+        className="pointer-events-none relative z-10 flex w-full flex-col items-center px-8 pt-8 text-center"
         initial={false}
         animate={{ opacity: revealed ? 1 : 0, y: revealed ? 0 : 30 }}
         transition={{ duration: 1.4, ease }}
         aria-hidden={!revealed}
       >
+        {bismillah && (
+          <Reveal show={revealed} delay={0.1}>
+            <p lang="ar" dir="rtl" className="font-arabic text-2xl leading-loose text-gold-light md:text-3xl">
+              {BISMILLAH}
+            </p>
+            {lang === "en" && (
+              <p className="-mt-1 mb-2 font-calligraphic text-sm italic text-cream/70">{t.bismillahMeaning}</p>
+            )}
+          </Reveal>
+        )}
+
+        {/* The couple standing in a Mughal arch window. */}
+        <Reveal show={revealed} delay={0.3}>
+          <div className="relative mt-2 aspect-[200/260] w-[min(66vw,300px,32svh)]">
+            <svg viewBox="0 0 200 260" preserveAspectRatio="none" className="absolute inset-0 size-full" aria-hidden>
+              <defs>
+                <radialGradient id="hero-arch-fill" cx="0.5" cy="0.4" r="0.7">
+                  <stop offset="0" stopColor="#fffaf0" />
+                  <stop offset="1" stopColor="#f2e4c4" />
+                </radialGradient>
+              </defs>
+              <path d={`${ARCH_PATH} Z`} fill="url(#hero-arch-fill)" />
+            </svg>
+            <ArchFrame className="absolute inset-0 size-full" />
+            <CoupleIllustration className="absolute inset-x-[6%] bottom-0 h-[84%] w-[88%]" />
+          </div>
+        </Reveal>
+
         {headline && (
-          <Reveal show={revealed} delay={0.2}>
-            <p className="mb-1 whitespace-pre-line font-calligraphic text-2xl italic text-primary md:text-3xl">
+          <Reveal show={revealed} delay={0.6}>
+            <p className="mt-5 whitespace-pre-line font-calligraphic text-xl italic text-cream/90 md:text-2xl">
               {headline}
             </p>
           </Reveal>
         )}
-        <Reveal show={revealed} delay={0.35}>
-          <Ornament wide className="my-4" />
+        <Reveal show={revealed} delay={0.8}>
+          <h1 className="mt-1 flex flex-wrap items-baseline justify-center gap-x-3 font-names text-5xl leading-tight text-gold-light md:text-7xl rtl:text-5xl rtl:leading-[1.5] md:rtl:text-7xl">
+            <span>{first.name}</span>
+            <span className="text-3xl text-cream/80 md:text-5xl rtl:text-4xl">{t.and}</span>
+            <span>{second.name}</span>
+          </h1>
         </Reveal>
-        <Reveal show={revealed} delay={0.5}>
-          <Name person={first} />
-        </Reveal>
-        <Reveal show={revealed} delay={0.75}>
-          <p className="my-1 font-calligraphic text-4xl italic text-accent md:text-5xl rtl:font-names">{t.and}</p>
-        </Reveal>
-        <Reveal show={revealed} delay={0.95}>
-          <Name person={second} />
+        <Reveal show={revealed} delay={1}>
+          <Ornament wide className="mt-3" />
         </Reveal>
       </motion.div>
 
-      {/* Shoji doors over everything until the seal is tapped. */}
-      {(["start", "end"] as const).map((side) => (
+      {/* Carved palace doors until the medallion is tapped. */}
+      {(["left", "right"] as const).map((side) => (
         <motion.div
           key={side}
-          className={`absolute inset-y-0 z-30 w-1/2 shadow-[0_0_40px_rgba(110,80,100,0.18)] ${
-            side === "start" ? "start-0" : "end-0"
-          }`}
+          className={`absolute inset-y-0 z-30 w-1/2 ${side === "left" ? "left-0" : "right-0"}`}
+          style={{ transformOrigin: side === "left" ? "left center" : "right center" }}
           initial={false}
-          animate={{ x: phase === "closed" ? 0 : `${(side === "start") !== (lang === "ar") ? -102 : 102}%` }}
-          transition={{ duration: DOOR_SECONDS, ease: [0.65, 0, 0.35, 1] }}
+          animate={
+            phase === "closed"
+              ? { rotateY: 0, opacity: 1 }
+              : { rotateY: side === "left" ? -105 : 105, opacity: [1, 1, 0] }
+          }
+          transition={{ duration: DOOR_SECONDS, ease: [0.55, 0, 0.3, 1] }}
           aria-hidden
         >
           <Door side={side} />
@@ -130,17 +151,17 @@ export function IntroHero({
             onClick={open}
             aria-label={t.openInvitation}
             className="absolute inset-0 z-40 flex cursor-pointer flex-col items-center justify-center gap-4"
-            exit={{ opacity: 0, scale: 0.7 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.45 }}
           >
             <motion.span
-              className="block size-24 drop-shadow-[0_8px_16px_rgba(180,90,100,0.35)] md:size-28"
+              className="block size-28 drop-shadow-[0_10px_20px_rgba(0,0,0,0.45)] md:size-32"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
             >
-              <HankoSeal initials={initials} className="size-full" />
+              <Medallion initials={initials} className="size-full" />
             </motion.span>
-            <span className="rounded-full bg-white/85 px-5 py-2 font-body text-[11px] uppercase tracking-[0.3em] text-primary shadow-sm rtl:text-sm">
+            <span className="rounded-full border border-gold/70 bg-emerald/90 px-5 py-2 font-display text-[11px] uppercase tracking-[0.3em] text-gold-light shadow-lg rtl:text-sm">
               {t.tapToOpen}
             </span>
           </motion.button>
@@ -150,15 +171,15 @@ export function IntroHero({
       <AnimatePresence>
         {revealed && (
           <motion.div
-            className="pointer-events-none absolute inset-x-0 bottom-10 z-10 flex flex-col items-center gap-2"
+            className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex flex-col items-center gap-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ delay: 1.4, duration: 0.8 }}
+            transition={{ delay: 1.6, duration: 0.8 }}
           >
-            <div className="animate-scroll-hint flex flex-col items-center gap-1 rounded-full bg-white/70 px-3 py-2">
-              <span className="text-[10px] uppercase tracking-widest text-primary rtl:text-xs">{t.scroll}</span>
-              <ChevronDown className="size-4 text-primary" />
+            <div className="animate-scroll-hint flex flex-col items-center gap-1 text-gold-light">
+              <span className="text-[10px] uppercase tracking-widest rtl:text-xs">{t.scroll}</span>
+              <ChevronDown className="size-4" />
             </div>
           </motion.div>
         )}
@@ -167,33 +188,21 @@ export function IntroHero({
   );
 }
 
-/** One sliding panel: lattice paper above, a seigaiha panel below, a round pull near the seam. */
-function Door({ side }: { side: "start" | "end" }) {
+/** One door leaf: jaali screen inside a gold-framed arch panel, with a ring knocker by the seam. */
+function Door({ side }: { side: "left" | "right" }) {
   return (
-    <div className="relative flex size-full flex-col border-x-[6px] border-y-[6px] border-[#e9d8c8] bg-[#e9d8c8]">
-      <div className="shoji relative flex-1" />
-      <div className="relative h-[16%] overflow-hidden border-t-[6px] border-[#e9d8c8]">
-        <Seigaiha className="absolute inset-0 size-full" colors={["var(--color-blush)", "#fdf3f5"]} size={0.9} />
+    <div className="relative size-full bg-[#0b2f28] shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
+      <div className="absolute inset-[12px] overflow-hidden border border-gold/60">
+        <div className="jaali absolute inset-0" />
+        <ArchFrame className="absolute inset-x-[10%] top-[6%] h-[70%] w-[80%]" color="#e6c97e" />
+        <div className="absolute inset-x-0 bottom-0 h-[18%] border-t border-gold/60 bg-[#0b2f28]/85" />
       </div>
       <span
-        className={`absolute top-1/2 size-6 -translate-y-1/2 rounded-full border-2 border-[#d8c2ae] bg-[#f3e7dc] shadow-inner ${
-          side === "start" ? "end-4" : "start-4"
+        className={`absolute top-1/2 size-8 -translate-y-1/2 rounded-full border-[3px] border-gold-light/90 shadow-md ${
+          side === "left" ? "right-5" : "left-5"
         }`}
       />
     </div>
-  );
-}
-
-function Name({ person }: { person: Person }) {
-  return (
-    <h1 className="font-names text-6xl font-medium leading-tight tracking-wide text-names md:text-8xl rtl:text-7xl rtl:leading-[1.4] md:rtl:text-9xl">
-      {person.name}
-      {person.details && (
-        <span className="mb-2 mt-2 block whitespace-pre-line font-body text-xs font-normal leading-relaxed tracking-wider text-muted md:text-sm rtl:text-base">
-          {person.details}
-        </span>
-      )}
-    </h1>
   );
 }
 

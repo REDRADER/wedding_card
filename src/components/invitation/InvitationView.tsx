@@ -1,10 +1,11 @@
 "use client";
 
 import {
-  CalendarHeart,
+  CalendarDays,
   Clock,
   Gift,
   Globe,
+  Heart,
   Images,
   MapPin,
   Timer,
@@ -18,11 +19,11 @@ import { DICTIONARIES, I18nContext, LOCALES, localize, type Lang } from "@/lib/i
 import { eventsFor, mainEventFor, textOf, type Invitation } from "@/lib/invitation";
 import { getTheme, themeStyle } from "@/lib/templates";
 import { Countdown } from "./Countdown";
-import { FallingPetals, SakuraBranch, Seigaiha } from "./Decor";
+import { Crescent, FallingPetals, FloralSwag, Lantern, Skyline } from "./Decor";
 import { IntroHero } from "./IntroHero";
 import { SaveTheDate } from "./SaveTheDate";
 import { ScratchCard } from "./ScratchCard";
-import { Ornament, Section, TONES } from "./Section";
+import { Ornament, Section } from "./Section";
 import { Slideshow } from "./Slideshow";
 import { Timeline } from "./Timeline";
 import { Venue } from "./Venue";
@@ -115,15 +116,39 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
     location: inv.venue ? [inv.venue.name, inv.venue.address].filter(Boolean).join(", ") : undefined,
   };
 
-  // Each entry is one card; they're numbered and tinted in order.
+  // Each entry is one arched card, in order.
   const sections: { key: string; icon: LucideIcon; title?: string; node: ReactNode }[] = [];
   const add = (key: string, icon: LucideIcon, title: string | undefined, node: ReactNode) =>
     sections.push({ key, icon, title, node });
 
+  // The couple and their families come first, as on a printed card.
+  if (first.details || second.details) {
+    add(
+      "couple",
+      Heart,
+      t.couple,
+      <div className="flex flex-col items-center gap-6">
+        {[first, second].map((person, i) => (
+          <div key={person.name} className="contents">
+            {i === 1 && <p className="font-names text-4xl text-gold rtl:text-3xl">{t.and}</p>}
+            <div>
+              <p className="font-names text-5xl leading-tight text-primary md:text-6xl rtl:text-4xl rtl:leading-relaxed">
+                {person.name}
+              </p>
+              {person.details && (
+                <p className="mt-2 whitespace-pre-line leading-relaxed text-muted rtl:text-lg">{person.details}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>,
+    );
+  }
+
   if (inv.scratchCard !== false) {
     add(
       "date",
-      CalendarHeart,
+      CalendarDays,
       inv.scratchCard?.title ?? t.scratchTitle,
       <>
         <ScratchCard
@@ -138,7 +163,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
   } else {
     add(
       "date",
-      CalendarHeart,
+      CalendarDays,
       t.saveTheDate,
       <>
         <p className="font-display text-2xl font-semibold text-foreground">{formatFullDate(main.date, locale)}</p>
@@ -197,7 +222,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
         lang={lang}
         dir={lang === "ar" ? "rtl" : "ltr"}
         style={themeStyle(theme)}
-        className="min-h-svh bg-page font-body text-foreground"
+        className="min-h-svh bg-emerald font-body text-foreground"
       >
         {musicSrc && <audio ref={audioRef} src={musicSrc} loop preload="auto" />}
 
@@ -206,7 +231,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
             type="button"
             onClick={toggleMusic}
             aria-label={playing ? t.muteMusic : t.playMusic}
-            className="fixed right-4 top-4 z-50 flex size-10 items-center justify-center rounded-full border border-white/80 bg-white/70 text-primary shadow-lg backdrop-blur transition hover:bg-white"
+            className="fixed bottom-4 right-4 z-50 flex size-10 items-center justify-center rounded-full border border-gold/70 bg-emerald/85 text-gold-light shadow-lg backdrop-blur transition hover:bg-emerald"
           >
             {playing ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
           </button>
@@ -217,7 +242,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
             type="button"
             onClick={toggleLang}
             lang={lang === "en" ? "ar" : "en"}
-            className="fixed bottom-4 left-4 z-50 flex h-10 items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 text-sm text-primary shadow-lg backdrop-blur transition hover:bg-white"
+            className="fixed bottom-4 left-4 z-50 flex h-10 items-center gap-2 rounded-full border border-gold/70 bg-emerald/85 px-4 text-sm text-gold-light shadow-lg backdrop-blur transition hover:bg-emerald"
           >
             <Globe className="size-4" />
             {t.switchTo}
@@ -228,59 +253,73 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
           headline={inv.headline}
           first={first}
           second={second}
-          dateLabel={formatFullDate(main.date, locale)}
+          bismillah={inv.bismillah !== false}
           onOpen={startMusic}
           onReveal={onReveal}
         />
 
         <FallingPetals />
 
-        <main className="relative isolate overflow-hidden">
-          {/* Pastel wash behind the cards: soft color fields and paper grain. */}
-          <div aria-hidden className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-gradient-to-b from-lilac/60 via-page to-mint/50" />
-            <div className="absolute -left-1/4 top-[8%] size-[90vw] max-w-[700px] rounded-full bg-blush/70 blur-3xl" />
-            <div className="absolute -right-1/4 top-[38%] size-[90vw] max-w-[700px] rounded-full bg-sky/70 blur-3xl" />
-            <div className="absolute -left-1/4 top-[68%] size-[90vw] max-w-[700px] rounded-full bg-butter/70 blur-3xl" />
-            <div className="washi absolute inset-0 opacity-25 mix-blend-multiply" />
-          </div>
+        <main className="islamic-pattern relative isolate overflow-hidden bg-emerald">
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0b2f28] via-transparent to-[#0b2f28]"
+          />
 
-          {inv.welcomeMessage ? (
-            <section className="relative px-8 pb-10 pt-20 md:px-14 md:pt-28">
-              <div className="mx-auto max-w-2xl text-center">
-                <Ornament wide className="mb-8" />
-                <p className="whitespace-pre-wrap break-words font-calligraphic text-2xl italic leading-relaxed text-ink md:text-3xl">
+          <section className="relative px-8 pb-10 pt-20 text-center md:px-14 md:pt-28">
+            <div className="mx-auto max-w-2xl">
+              <Ornament wide className="mb-8" />
+              {inv.verse && (
+                <figure className="mb-10">
+                  <p lang="ar" dir="rtl" className="font-arabic text-2xl leading-[2.1] text-gold-light md:text-3xl">
+                    {inv.verse.arabic}
+                  </p>
+                  {lang === "en" && inv.verse.translation && (
+                    <blockquote className="mt-4 font-calligraphic text-lg italic leading-relaxed text-cream/80 md:text-xl">
+                      &ldquo;{inv.verse.translation}&rdquo;
+                    </blockquote>
+                  )}
+                  {inv.verse.reference && (
+                    <figcaption className="mt-3 font-display text-xs uppercase tracking-[0.25em] text-gold rtl:text-sm">
+                      {inv.verse.reference}
+                    </figcaption>
+                  )}
+                </figure>
+              )}
+              {inv.welcomeMessage && (
+                <p className="whitespace-pre-wrap break-words font-calligraphic text-2xl italic leading-relaxed text-cream md:text-3xl">
                   {inv.welcomeMessage}
                 </p>
-                <Ornament wide className="mt-8" />
-              </div>
-            </section>
-          ) : (
-            <div aria-hidden className="h-16 w-full md:h-24" />
-          )}
+              )}
+              <Ornament wide className="mt-8" />
+            </div>
+          </section>
 
-          {sections.map(({ key, icon, title, node }, i) => (
-            <Section key={key} index={i + 1} tone={TONES[i % TONES.length]} icon={icon} title={title}>
+          {sections.map(({ key, icon, title, node }) => (
+            <Section key={key} icon={icon} title={title}>
               {node}
             </Section>
           ))}
 
-          <footer className="relative mt-6 overflow-hidden pt-40 text-center md:pt-52">
-            <SakuraBranch className="pointer-events-none absolute -right-6 top-0 w-[60vw] max-w-[340px] opacity-90" />
-            <div className="relative mx-auto max-w-2xl px-10 pb-[30vw] md:pb-56">
-              <p className="mb-5 whitespace-pre-line font-display text-3xl leading-relaxed text-ink md:text-4xl">
+          <footer className="relative mt-10 overflow-hidden pt-36 text-center md:pt-44">
+            <FloralSwag className="absolute inset-x-0 top-0 h-10 w-full md:h-14" />
+            <Lantern className="animate-lantern absolute left-[8%] top-0 w-10 md:w-14" chain={40} />
+            <Lantern
+              className="animate-lantern absolute right-[8%] top-0 w-10 md:w-14"
+              chain={64}
+              style={{ animationDelay: "-2s" }}
+            />
+            <div className="relative mx-auto max-w-2xl px-10 pb-[36vw] md:pb-64">
+              <Crescent className="mx-auto mb-6 size-9 text-gold-light" />
+              <p className="mb-5 whitespace-pre-line font-calligraphic text-3xl italic leading-relaxed text-cream md:text-4xl">
                 {inv.closing?.message ?? t.closing}
               </p>
               <Ornament wide className="mb-5" />
-              <p className="whitespace-pre-line font-calligraphic text-2xl italic text-primary md:text-3xl rtl:font-names">
+              <p className="whitespace-pre-line font-names text-4xl text-gold-light md:text-5xl rtl:text-3xl">
                 {inv.closing?.signature ?? names}
               </p>
             </div>
-            <Seigaiha
-              className="absolute inset-x-0 bottom-0 h-[26vw] max-h-44 w-full [mask-image:linear-gradient(to_bottom,transparent,black_45%)]"
-              colors={["var(--color-sky)", "var(--color-mint)"]}
-              size={1.3}
-            />
+            <Skyline className="absolute inset-x-0 bottom-0 h-[32vw] max-h-56 w-full" />
           </footer>
         </main>
       </div>

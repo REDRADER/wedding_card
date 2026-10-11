@@ -5,7 +5,6 @@ import { formatNumber, zonedToEpoch } from "@/lib/dates";
 import { useI18n } from "@/lib/i18n";
 
 const UNITS = [86_400_000, 3_600_000, 60_000, 1000];
-const TILE_TONES = ["bg-blush", "bg-lilac", "bg-mint", "bg-sky"];
 
 export function Countdown({ date, time, timezone }: { date: string; time: string; timezone: string }) {
   const { t, locale } = useI18n();
@@ -34,12 +33,12 @@ export function Countdown({ date, time, timezone }: { date: string; time: string
 
   return (
     <div className="flex justify-center gap-2 sm:gap-4" role="timer" aria-live="off">
-      {values.map(({ label, value }, i) => (
+      {values.map(({ label, value }) => (
         <div key={label} className="flex flex-col items-center">
           <div
-            className={`flex aspect-square min-w-16 items-center justify-center rounded-2xl border border-white/90 ${TILE_TONES[i]} shadow-[0_10px_24px_-14px_rgba(110,80,130,0.55)] sm:min-w-20 md:min-w-24`}
+            className="flex min-w-16 items-center justify-center rounded-t-full rounded-b-lg border-2 border-gold/70 bg-emerald px-2 pb-3 pt-5 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.5)] sm:min-w-20 md:min-w-24"
           >
-            <span className="font-display text-2xl font-medium tabular-nums text-ink sm:text-4xl md:text-5xl">
+            <span className="font-display text-2xl font-medium tabular-nums text-gold-light sm:text-4xl md:text-5xl">
               {value}
             </span>
           </div>

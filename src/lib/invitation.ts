@@ -20,6 +20,10 @@ export type InvitationData = {
     /** Show the bride's name first in the hero. Defaults to groom first. */
     brideFirst?: boolean;
   };
+  /** Bismillah in Arabic calligraphy above the names. Defaults to true. */
+  bismillah?: boolean;
+  /** A Quran verse shown with the welcome message. `arabic` is shown in both languages. */
+  verse?: { arabic: string; translation?: string; reference?: string };
   /** Small line above the names, e.g. "We're getting married". */
   headline?: string;
   welcomeMessage?: string;
@@ -56,7 +60,7 @@ export type InvitationData = {
   music?: { enabled?: boolean; src?: string };
 };
 
-export type TemplateId = "sakura";
+export type TemplateId = "noor";
 
 type DeepPartial<T> = T extends string
   ? string
@@ -72,6 +76,7 @@ export type Translation = DeepPartial<
     | "seo"
     | "couple"
     | "headline"
+    | "verse"
     | "welcomeMessage"
     | "scratchCard"
     | "countdown"
@@ -100,7 +105,7 @@ export type TextSection = string | { title?: string; text: string };
 
 export type Invitation = InvitationData & { slug: string };
 
-export const TEMPLATE_IDS: TemplateId[] = ["sakura"];
+export const TEMPLATE_IDS: TemplateId[] = ["noor"];
 
 export function textOf(section: TextSection | undefined): { title?: string; text: string } | null {
   if (!section) return null;

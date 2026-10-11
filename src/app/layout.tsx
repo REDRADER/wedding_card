@@ -1,25 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Amiri, Aref_Ruqaa, Cormorant_Garamond, Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
+import { Amiri, Aref_Ruqaa, Cinzel, Cormorant_Garamond, EB_Garamond, Pinyon_Script } from "next/font/google";
 import "./globals.css";
 
-// Mincho for names and headings, a clean gothic for body text, Cormorant italic for accents.
-const shippori = Shippori_Mincho({ variable: "--font-shippori", subsets: ["latin"], weight: ["400", "500", "600"] });
-const zenKaku = Zen_Kaku_Gothic_New({ variable: "--font-zen-kaku", subsets: ["latin"], weight: ["300", "400", "500"] });
+// Inscription capitals for headings, a flowing script for names, Garamond for reading.
+const cinzel = Cinzel({ variable: "--font-cinzel", subsets: ["latin"], weight: ["400", "500", "600"] });
+const pinyon = Pinyon_Script({ variable: "--font-pinyon", subsets: ["latin"], weight: "400" });
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
 });
-// Arabic: Ruqʿah calligraphy for names and headings, Naskh for everything else.
-// Not preloaded: they're only fetched once a page actually switches to Arabic.
+const garamond = EB_Garamond({ variable: "--font-garamond", subsets: ["latin"], weight: ["400", "500"] });
+// Arabic: Ruqʿah calligraphy for names and headings, Naskh for everything else (and the Bismillah).
+// Not preloaded: Aref Ruqaa is only fetched once a page switches to Arabic.
 const arefRuqaa = Aref_Ruqaa({
   variable: "--font-aref-ruqaa",
   subsets: ["arabic"],
   weight: ["400", "700"],
   preload: false,
 });
-const amiri = Amiri({ variable: "--font-amiri", subsets: ["arabic"], weight: ["400", "700"], preload: false });
+const amiri = Amiri({ variable: "--font-amiri", subsets: ["arabic"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
   title: "Wedding Invitations",
@@ -27,14 +28,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbf4f2",
+  themeColor: "#0f3d33",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={[shippori, zenKaku, cormorant, arefRuqaa, amiri].map((f) => f.variable).join(" ")}>
+    <html
+      lang="en"
+      className={[cinzel, pinyon, cormorant, garamond, arefRuqaa, amiri].map((f) => f.variable).join(" ")}
+    >
       <body>{children}</body>
     </html>
   );

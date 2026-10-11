@@ -1,5 +1,5 @@
 {
-  "template": "sakura",
+  "template": "noor",
   "defaultLanguage": "en",
   "seo": {
     "title": "Zaid & Aisha - Wedding Invitation",
@@ -16,6 +16,11 @@
     }
   },
   "headline": "We're getting married",
+  "verse": {
+    "arabic": "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً",
+    "translation": "And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy.",
+    "reference": "Surah Ar-Rum 30:21"
+  },
   "welcomeMessage": "With the blessings of our families, we are honored to welcome you to the wedding of Zaid & Aisha as they begin their journey together in faith and love.\nThank you for being part of this blessed occasion ❤",
   "event": {
     "date": "2027-01-31",
@@ -74,7 +79,7 @@
   },
   "music": {
     "enabled": true,
-    "src": "/templates/sakura/music.mp3"
+    "src": "/templates/noor/music.mp3"
   },
   "ar": {
     "couple": {
@@ -116,6 +121,9 @@
     "closing": {
       "message": "بانتظاركم لنحتفل معاً!",
       "signature": "زيد وعائشة"
+    },
+    "verse": {
+      "reference": "سورة الروم ٢١"
     }
   }
 }

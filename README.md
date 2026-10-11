@@ -2,7 +2,7 @@
 
 # zaid weeding card
 
-Animated digital wedding invitations with a pastel, modern-Japanese look: shoji doors that slide open, falling sakura petals, seigaiha waves and frosted pastel cards. Each JSON file in `data/invitations/` becomes its own page at
+Animated digital wedding invitations for an Indian Muslim wedding, traditional with a modern finish: carved palace doors that swing open, Bismillah calligraphy, an illustrated bride and groom under a Mughal arch, hanging lanterns, falling rose petals, and ivory arched cards on an emerald and gold Islamic pattern. Each JSON file in `data/invitations/` becomes its own page at
 `/invite/<file-name>`.
 
 Built with Next.js (App Router), Tailwind CSS v4, `motion` and `lucide-react`.
@@ -32,12 +32,14 @@ error tells you which field is wrong.
 
 | Field | Required | Notes |
 | --- | --- | --- |
-| `template` | yes | `"sakura"` |
-| `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. |
+| `template` | yes | `"noor"` |
+| `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. The details appear in the "Bride & Groom" card. |
 | `couple.brideFirst` | | `true` puts the bride's name first. |
 | `event.date` / `event.time` / `event.timezone` | yes | `"2027-01-31"`, `"10:30"` (24h), `"Asia/Kolkata"`. Drives the scratch card, countdown and calendar links. |
 | `event.title`, `event.durationHours` | | Used for "Save the Date" calendar entries (default 4 hours). |
+| `bismillah` | | `false` hides the Bismillah above the couple (shown by default). |
 | `headline` | | Line above the names, e.g. "We're getting married". |
+| `verse` | | `{ "arabic", "translation"?, "reference"? }`: a Quran verse above the welcome message. The Arabic shows in both languages, the translation only in English. |
 | `welcomeMessage` | | First section after the hero. |
 | `scratchCard` | | `{ "title", "revealLabel" }`, or `false` to show a plain date instead. |
 | `slideshow` | | Array of image paths/URLs. |
@@ -109,17 +111,19 @@ appear in the link, so pick neutral ones. Combine with the language: `?for=recep
   static page per file.
 - `src/components/invitation/InvitationView.tsx` lays out the sections in order and owns music and
   the scroll lock.
-- `IntroHero.tsx`: closed shoji doors with the couple's initials on a hanko seal. A tap starts the music and
-  slides the doors open; the names fade in, then the page unlocks for scrolling.
-- `Decor.tsx`: the hand-drawn SVG pieces (sakura blossom and branch, falling petals, seigaiha waves, hanko seal).
+- `IntroHero.tsx`: closed jaali palace doors with a gold medallion of the couple's initials. A tap starts the
+  music and swings the doors open onto the Bismillah, the couple illustration and their names, then the page
+  unlocks for scrolling.
+- `Decor.tsx`: the hand-drawn SVG pieces (the bride and groom, Mughal arch, lanterns, medallion, crescent,
+  eight-point star, jasmine-and-rose garland, Mughal skyline, falling rose petals).
 - `src/lib/i18n.ts` has the built-in English/Arabic labels and merges the `ar` block over the English
   content. Fonts switch through CSS variables under `[lang="ar"]` in `globals.css`.
-- `src/lib/templates.ts` holds each template's colors (including the pastel washes `blush`, `lilac`, `mint`,
-  `sky`, `butter`) and music. Colors are CSS variables mapped to Tailwind tokens (`text-primary`, `bg-mint`, ...)
+- `src/lib/templates.ts` holds each template's colors (including `gold`, `emerald` and `maroon`) and music.
+  Colors are CSS variables mapped to Tailwind tokens (`text-primary`, `bg-emerald`, ...)
   in `src/app/globals.css`, so a new template is a new entry there plus its assets in `public/templates/<id>/`.
 
 ## Assets
 
 All artwork is drawn in code (SVG and CSS), so there are no background images to license.
-`public/templates/sakura/music.mp3` is still the stand-in track from zareqia.com's "Royal Grace" template:
+`public/templates/noor/music.mp3` is still the stand-in track from zareqia.com's "Royal Grace" template:
 replace it with music you have the rights to before publishing these invitations anywhere public.
