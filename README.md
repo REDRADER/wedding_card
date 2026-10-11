@@ -1,6 +1,6 @@
 <img src="assets/icon.svg" width="64" height="64" alt="">
 
-# zaid weeding card
+# zaid wedding card
 
 Animated digital wedding invitations. Each JSON file in `data/invitations/` becomes its own page at
 `/invite/<file-name>`.
