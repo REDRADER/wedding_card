@@ -2,7 +2,7 @@
 
 # zaid weeding card
 
-Animated digital wedding invitations. Each JSON file in `data/invitations/` becomes its own page at
+Animated digital wedding invitations with a pastel, modern-Japanese look: shoji doors that slide open, falling sakura petals, seigaiha waves and frosted pastel cards. Each JSON file in `data/invitations/` becomes its own page at
 `/invite/<file-name>`.
 
 Built with Next.js (App Router), Tailwind CSS v4, `motion` and `lucide-react`.
@@ -32,7 +32,7 @@ error tells you which field is wrong.
 
 | Field | Required | Notes |
 | --- | --- | --- |
-| `template` | yes | `"royal-grace"` |
+| `template` | yes | `"sakura"` |
 | `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. |
 | `couple.brideFirst` | | `true` puts the bride's name first. |
 | `event.date` / `event.time` / `event.timezone` | yes | `"2027-01-31"`, `"10:30"` (24h), `"Asia/Kolkata"`. Drives the scratch card, countdown and calendar links. |
@@ -42,11 +42,10 @@ error tells you which field is wrong.
 | `scratchCard` | | `{ "title", "revealLabel" }`, or `false` to show a plain date instead. |
 | `slideshow` | | Array of image paths/URLs. |
 | `countdown` | | `{ "title" }`, or `false` to hide. |
-| `program`, `preEvents` | | `{ "title", "items": [{ "name", "dateTime": "2027-01-31T10:00", "description" }] }`. Grouped by day automatically. |
+| `program` | | `{ "title", "items": [{ "id", "name", "dateTime": "2027-01-31T10:00", "description" }] }`. Every event (Mehendi, Nikah, Reception, ...) goes here; grouped by day automatically. |
+| `guestGroups` | | Which events each guest link shows. See below. |
 | `venue` | | `{ "name", "address", "mapsUrl"?, "mapQuery"? }`. The map embed and button are built from name + address unless you override them. |
-| `dressCode` | | `{ "women", "men", "title"? }` |
-| `transportation`, `accommodation`, `gifts` | | A string, or `{ "title", "text" }`. |
-| `rsvp` | | See below. |
+| `gifts` | | A string, or `{ "title", "text" }`. |
 | `closing` | | `{ "message", "signature" }` |
 | `music` | | `{ "enabled": false }` to turn music off, or `{ "src": "/my-song.mp3" }` to change it. |
 | `seo` | | `{ "title", "description" }` for the browser tab and link previews. |
@@ -71,21 +70,38 @@ and the countdown use Arabic month names and digits (٣١ يناير ٢٠٢٧).
 
 - Anything you leave out falls back to the English text. Section headings ("برنامج الحفل", "المكان",
   ...) are built in; set a `title` inside `ar` only to override one.
-- List items (`program.items`, `preEvents.items`) are matched by position, and dates and times always come
+- Program items are matched by position, and dates and times always come
   from the English list.
 - The map always searches the English venue name and address.
 - Link straight to a language with `?lang=ar` or `?lang=en`, e.g. `/invite/zaid-aisha?lang=ar`.
 
-### RSVP
+### Guest links
 
-Replies go wherever the invitation's `rsvp` block points:
+Not everyone is invited to every event. Give each program item an `id` and list who sees what:
 
-- `"whatsappNumber": "919876543210"` (country code + number, digits only) opens WhatsApp with the reply
-  pre-filled to that number.
-- `"formEndpoint": "https://..."` POSTs the reply as JSON (`invitation`, `name`, `attending`, `guests`,
-  `message`) to any form backend, e.g. Formspree or a Google Apps Script that writes to a Sheet.
+```json
+"program": {
+  "items": [
+    { "id": "mehendi", "name": "Mehendi", "dateTime": "2027-01-28T20:30" },
+    { "id": "nikah", "name": "Nikah Ceremony", "dateTime": "2027-01-31T10:30" },
+    { "id": "reception", "name": "Reception", "dateTime": "2027-02-02T19:30" }
+  ]
+},
+"guestGroups": {
+  "family": ["mehendi", "nikah", "reception"],
+  "reception": ["reception"]
+}
+```
 
-You can set both. With neither, the form shows a "not connected yet" notice instead of pretending it sent.
+Then send each guest their group's link:
+
+- `/invite/zaid-aisha?for=family` shows all three events.
+- `/invite/zaid-aisha?for=reception` shows only the Reception.
+- `/invite/zaid-aisha` with no `?for=` (or an unknown group) shows everything.
+
+The scratch card, countdown and "Save the Date" follow the guest's events: they use `event.date`/`event.time`
+when the guest is invited to something on that day, and otherwise the guest's first event. Group names
+appear in the link, so pick neutral ones. Combine with the language: `?for=reception&lang=ar`.
 
 ## How it's put together
 
@@ -93,17 +109,17 @@ You can set both. With neither, the form shows a "not connected yet" notice inst
   static page per file.
 - `src/components/invitation/InvitationView.tsx` lays out the sections in order and owns music and
   the scroll lock.
-- `IntroHero.tsx`: the intro video starts paused on its "tap to open" frame. A tap starts the video and
-  the music; the names fade in over the final frame, then the page unlocks for scrolling.
+- `IntroHero.tsx`: closed shoji doors with the couple's initials on a hanko seal. A tap starts the music and
+  slides the doors open; the names fade in, then the page unlocks for scrolling.
+- `Decor.tsx`: the hand-drawn SVG pieces (sakura blossom and branch, falling petals, seigaiha waves, hanko seal).
 - `src/lib/i18n.ts` has the built-in English/Arabic labels and merges the `ar` block over the English
   content. Fonts switch through CSS variables under `[lang="ar"]` in `globals.css`.
-- `src/lib/templates.ts` holds each template's asset paths and colors. Colors are CSS variables mapped
-  to Tailwind tokens (`text-primary`, `bg-field`, ...) in `src/app/globals.css`, so a new template is
-  a new entry there plus its assets in `public/templates/<id>/`.
+- `src/lib/templates.ts` holds each template's colors (including the pastel washes `blush`, `lilac`, `mint`,
+  `sky`, `butter`) and music. Colors are CSS variables mapped to Tailwind tokens (`text-primary`, `bg-mint`, ...)
+  in `src/app/globals.css`, so a new template is a new entry there plus its assets in `public/templates/<id>/`.
 
 ## Assets
 
-`public/templates/royal-grace/` (intro video, backgrounds, music) is taken from zareqia.com's "Royal
-Grace" template as a stand-in. It belongs to them: replace it with your own artwork and music before
-publishing these invitations anywhere public. The poster and final-frame JPEGs are stills from the
-video, so regenerate them when you swap the video.
+All artwork is drawn in code (SVG and CSS), so there are no background images to license.
+`public/templates/sakura/music.mp3` is still the stand-in track from zareqia.com's "Royal Grace" template:
+replace it with music you have the rights to before publishing these invitations anywhere public.

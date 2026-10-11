@@ -102,7 +102,7 @@ export function SaveTheDate(props: Props) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-cream shadow-[0_6px_18px_rgba(60,70,50,0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_24px_rgba(60,70,50,0.35)] md:text-sm"
+        className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-[0_10px_24px_-8px_rgba(143,106,143,0.7)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-8px_rgba(143,106,143,0.8)] md:text-sm"
       >
         <CalendarDays className="size-4" />
         {t.saveTheDate}
@@ -115,7 +115,7 @@ export function SaveTheDate(props: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.18 }}
-            className="absolute left-1/2 z-30 mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-xl border border-field-border bg-cream py-1 shadow-xl"
+            className="absolute left-1/2 z-30 mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-2xl border border-field-border bg-cream py-1 shadow-xl"
           >
             <a role="menuitem" className={item} href={links(props).google} target="_blank" rel="noreferrer">
               {t.googleCalendar}

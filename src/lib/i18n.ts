@@ -7,6 +7,8 @@ export type Lang = "en" | "ar";
 const en = {
   switchTo: "العربية",
   openInvitation: "Open the invitation",
+  tapToOpen: "Tap to open",
+  weddingInvitation: "Wedding Invitation",
   playMusic: "Play music",
   muteMusic: "Mute music",
   scroll: "Scroll",
@@ -26,38 +28,12 @@ const en = {
   venue: "Venue",
   mapOf: (name: string) => `Map of ${name}`,
   viewOnMaps: "View on Google Maps",
-  dressCode: "Dress Code",
-  women: "Women",
-  men: "Men",
-  preEvents: "Pre-Wedding Events",
-  transportation: "Transportation",
-  accommodation: "Accommodation",
   gifts: "Gifts",
-  rsvp: "RSVP",
-  yourName: "Your Name",
-  fullNamePlaceholder: "Your full name",
-  attending: "Will you be attending?",
-  select: "Select...",
-  yes: "Yes, I'll be there!",
-  no: "Sorry, I can't make it",
-  guests: "Number of guests",
-  yourMessage: "Your Message",
-  messagePlaceholder: "Write your wishes...",
-  send: "Send Message",
-  sending: "Sending...",
-  thanks: "Thank you!",
-  thanksSub: "Your reply means the world to us.",
-  sendError: "Something went wrong. Please try again.",
-  unconfigured: "RSVP isn't connected yet. Add rsvp.whatsappNumber or rsvp.formEndpoint to this invitation's JSON.",
-  rsvpFor: (names: string) => `RSVP for ${names}`,
-  rsvpName: "Name",
-  rsvpAttendingYes: (n: number) => `Attending: Yes (${n} guest${n === 1 ? "" : "s"})`,
-  rsvpAttendingNo: "Attending: No",
-  rsvpMessage: "Message",
   closing: "We can't wait to celebrate with you!",
   and: "&",
   joinNames: (a: string, b: string) => `${a} & ${b}`,
   weddingOf: (names: string) => `${names} - Wedding`,
+  eventOf: (event: string, names: string) => `${event} - ${names}`,
 };
 
 export type Dictionary = typeof en;
@@ -65,6 +41,8 @@ export type Dictionary = typeof en;
 const ar: Dictionary = {
   switchTo: "English",
   openInvitation: "افتح الدعوة",
+  tapToOpen: "اضغط لفتح الدعوة",
+  weddingInvitation: "دعوة زفاف",
   playMusic: "تشغيل الموسيقى",
   muteMusic: "كتم الموسيقى",
   scroll: "مرّر",
@@ -84,38 +62,12 @@ const ar: Dictionary = {
   venue: "المكان",
   mapOf: (name) => `خريطة ${name}`,
   viewOnMaps: "عرض على خرائط Google",
-  dressCode: "قواعد اللباس",
-  women: "السيدات",
-  men: "الرجال",
-  preEvents: "مناسبات ما قبل الزفاف",
-  transportation: "المواصلات",
-  accommodation: "الإقامة",
   gifts: "الهدايا",
-  rsvp: "تأكيد الحضور",
-  yourName: "الاسم",
-  fullNamePlaceholder: "اسمك الكامل",
-  attending: "هل ستحضر؟",
-  select: "اختر...",
-  yes: "نعم، سأحضر بإذن الله",
-  no: "أعتذر، لن أتمكن من الحضور",
-  guests: "عدد الضيوف",
-  yourMessage: "رسالتك",
-  messagePlaceholder: "اكتب تهانيك...",
-  send: "إرسال",
-  sending: "جارٍ الإرسال...",
-  thanks: "شكراً لكم!",
-  thanksSub: "ردّكم يعني لنا الكثير.",
-  sendError: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-  unconfigured: "لم يتم ربط تأكيد الحضور بعد. أضف rsvp.whatsappNumber أو rsvp.formEndpoint إلى ملف الدعوة.",
-  rsvpFor: (names) => `تأكيد حضور - ${names}`,
-  rsvpName: "الاسم",
-  rsvpAttendingYes: (n) => `الحضور: نعم (${n} ${n === 1 ? "ضيف" : "ضيوف"})`,
-  rsvpAttendingNo: "الحضور: لا",
-  rsvpMessage: "الرسالة",
   closing: "بانتظاركم لنحتفل معاً!",
   and: "و",
   joinNames: (a, b) => `${a} و${b}`,
   weddingOf: (names) => `زفاف ${names}`,
+  eventOf: (event, names) => `${event} - ${names}`,
 };
 
 export const DICTIONARIES: Record<Lang, Dictionary> = { en, ar };
@@ -152,7 +104,7 @@ function merge(base: unknown, over: unknown, dropLabels: boolean): unknown {
     for (const [k, v] of Object.entries(o)) if (!(k in base)) out[k] = v;
     return out;
   }
-  // Strings in the base can be replaced by a plain string, e.g. transportation: "..."
+  // Strings in the base can be replaced by a plain string, e.g. gifts: "..."
   return over ?? base;
 }
 

@@ -2,20 +2,24 @@
 
 /* Template colors come from CSS variables set on the invitation root (see lib/templates.ts). */
 @theme inline {
-  --color-ink: var(--t-ink, #3b4432);
-  --color-names: var(--t-names, #3e5634);
-  --color-primary: var(--t-primary, #4a5c3d);
-  --color-foreground: var(--t-foreground, #27331f);
-  --color-muted: var(--t-muted, #5f6d55);
-  --color-accent: var(--t-accent, #8a7a4e);
-  --color-divider: var(--t-divider, #6b7d55);
-  --color-cream: var(--t-cream, #faf9f4);
-  --color-field: var(--t-field, #f3eadb);
-  --color-field-border: var(--t-field-border, #d9cfbd);
-  --color-page: var(--t-page-bg, #d6c5ac);
+  --color-ink: var(--t-ink, #463f53);
+  --color-names: var(--t-names, #4f3f62);
+  --color-primary: var(--t-primary, #8f6a8f);
+  --color-foreground: var(--t-foreground, #3d3648);
+  --color-muted: var(--t-muted, #776d84);
+  --color-accent: var(--t-accent, #e2848f);
+  --color-divider: var(--t-divider, #c9b6d4);
+  --color-cream: var(--t-cream, #fffaf7);
+  --color-field: var(--t-field, #f8eff4);
+  --color-field-border: var(--t-field-border, #ead9e4);
+  --color-page: var(--t-page-bg, #fbf4f2);
+  --color-blush: var(--t-blush, #f9d8df);
+  --color-lilac: var(--t-lilac, #e4dbf4);
+  --color-mint: var(--t-mint, #d4ecdf);
+  --color-sky: var(--t-sky, #d4e7f5);
+  --color-butter: var(--t-butter, #fbefd1);
 
   /* Indirect so the [lang="ar"] block below can swap every role at once. */
-  --font-script: var(--f-script);
   --font-names: var(--f-names);
   --font-calligraphic: var(--f-calligraphic);
   --font-display: var(--f-display);
@@ -23,18 +27,16 @@
 }
 
 :root {
-  --f-script: var(--font-dancing), cursive;
-  --f-names: var(--font-great-vibes), cursive;
+  --f-names: var(--font-shippori), serif;
   --f-calligraphic: var(--font-cormorant), serif;
-  --f-display: var(--font-playfair), serif;
-  --f-body: var(--font-lora), serif;
+  --f-display: var(--font-shippori), serif;
+  --f-body: var(--font-zen-kaku), sans-serif;
 }
 
 [lang="ar"] {
-  --f-script: var(--font-aref-ruqaa), var(--font-amiri), serif;
   --f-names: var(--font-aref-ruqaa), var(--font-amiri), serif;
   --f-calligraphic: var(--font-amiri), serif;
-  --f-display: var(--font-amiri), serif;
+  --f-display: var(--font-aref-ruqaa), var(--font-amiri), serif;
   --f-body: var(--font-amiri), serif;
   font-family: var(--f-body);
 }
@@ -46,22 +48,82 @@
 }
 
 html {
-  background: #0f0f0f;
+  background: #fbf4f2;
 }
 
 body {
   margin: 0;
-  font-family: var(--font-lora), serif;
+  font-family: var(--f-body);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
 
-.text-glow {
-  text-shadow: 0 2px 14px rgba(255, 255, 255, 0.6);
+/* Washi paper grain, laid over pastel backgrounds. */
+.washi {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .36 0 0 0 0 .48 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.text-glow-soft {
-  text-shadow: 0 1px 6px rgba(255, 255, 255, 0.5);
+/* Shoji screen: kumiko lattice over paper. */
+.shoji {
+  background-color: #fdfaf6;
+  background-image:
+    linear-gradient(90deg, rgba(196, 170, 150, 0.55) 2px, transparent 2px),
+    linear-gradient(rgba(196, 170, 150, 0.55) 2px, transparent 2px);
+  background-size: 33.34% 25%;
+  background-position: -1px -1px;
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+@keyframes petal-fall {
+  0% {
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+
+@keyframes petal-flutter {
+  0%,
+  100% {
+    transform: translateX(0) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: translateX(22px) rotateX(55deg) rotateY(160deg);
+  }
+}
+
+.animate-petal-fall {
+  animation: petal-fall var(--duration) linear var(--delay) infinite;
+}
+
+.animate-petal-flutter {
+  animation: petal-flutter 3.6s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.06);
+  }
+}
+
+.animate-drift {
+  animation: drift 18s ease-in-out infinite;
 }
 
 @keyframes scroll-hint {
@@ -76,4 +138,16 @@ body {
 
 .animate-scroll-hint {
   animation: scroll-hint 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-petal-fall,
+  .animate-petal-flutter,
+  .animate-drift,
+  .animate-scroll-hint {
+    animation: none;
+  }
+  .animate-petal-fall {
+    display: none;
+  }
 }

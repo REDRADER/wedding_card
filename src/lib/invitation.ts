@@ -38,6 +38,11 @@ export type InvitationData = {
   slideshow?: string[];
   countdown?: { title?: string } | false;
   program?: Schedule;
+  /**
+   * Who is invited to what. Keys are used in the link (`?for=family`), values are
+   * `program.items[].id`s. Guests opening the link without `?for=` see every event.
+   */
+  guestGroups?: Record<string, string[]>;
   venue?: {
     name: string;
     address?: string;
@@ -46,23 +51,12 @@ export type InvitationData = {
     /** Text the embedded map searches for. Defaults to "name, address". */
     mapQuery?: string;
   };
-  dressCode?: { title?: string; women?: string; men?: string };
-  preEvents?: Schedule;
-  transportation?: TextSection;
-  accommodation?: TextSection;
   gifts?: TextSection;
-  rsvp?: {
-    title?: string;
-    /** Country code + number, digits only, e.g. "919876543210". Replies open in WhatsApp. */
-    whatsappNumber?: string;
-    /** Optional URL that receives the reply as a JSON POST (Formspree, Apps Script, ...). */
-    formEndpoint?: string;
-  };
   closing?: { message?: string; signature?: string };
   music?: { enabled?: boolean; src?: string };
 };
 
-export type TemplateId = "royal-grace";
+export type TemplateId = "sakura";
 
 type DeepPartial<T> = T extends string
   ? string
@@ -83,12 +77,7 @@ export type Translation = DeepPartial<
     | "countdown"
     | "program"
     | "venue"
-    | "dressCode"
-    | "preEvents"
-    | "transportation"
-    | "accommodation"
     | "gifts"
-    | "rsvp"
     | "closing"
   >
 > & { event?: { title?: string } };
@@ -96,6 +85,8 @@ export type Translation = DeepPartial<
 export type Person = { name: string; details?: string };
 
 export type ScheduleItem = {
+  /** Referenced by `guestGroups`. Required once guest groups are used. */
+  id?: string;
   name: string;
   /** YYYY-MM-DDTHH:mm in the event timezone */
   dateTime: string;
@@ -109,7 +100,7 @@ export type TextSection = string | { title?: string; text: string };
 
 export type Invitation = InvitationData & { slug: string };
 
-export const TEMPLATE_IDS: TemplateId[] = ["royal-grace"];
+export const TEMPLATE_IDS: TemplateId[] = ["sakura"];
 
 export function textOf(section: TextSection | undefined): { title?: string; text: string } | null {
   if (!section) return null;
@@ -119,4 +110,25 @@ export function textOf(section: TextSection | undefined): { title?: string; text
 export function coupleNames(inv: InvitationData): string {
   const { groom, bride, brideFirst } = inv.couple;
   return brideFirst ? `${bride.name} & ${groom.name}` : `${groom.name} & ${bride.name}`;
+}
+
+/** The program items a guest group is invited to. Without a known group, every item. */
+export function eventsFor(inv: InvitationData, group: string | null): ScheduleItem[] {
+  const items = inv.program?.items ?? [];
+  const ids = group ? inv.guestGroups?.[group] : undefined;
+  return ids ? items.filter((item) => item.id && ids.includes(item.id)) : items;
+}
+
+/**
+ * The date the scratch card, countdown and calendar point at. That's `event` unless
+ * the guest isn't invited to anything on that day; then it's their first event.
+ */
+export function mainEventFor(
+  inv: InvitationData,
+  items: ScheduleItem[],
+): { date: string; time: string; item?: ScheduleItem } {
+  const { date, time } = inv.event;
+  if (!items.length || items.some((item) => item.dateTime.startsWith(date))) return { date, time };
+  const first = [...items].sort((a, b) => a.dateTime.localeCompare(b.dateTime))[0];
+  return { date: first.dateTime.slice(0, 10), time: first.dateTime.slice(11, 16), item: first };
 }

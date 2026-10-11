@@ -1,37 +1,43 @@
 "use client";
 
-import { Car, Clock, Gift, Globe, Hotel, Mail, MapPin, PartyPopper, Shirt, Volume2, VolumeX } from "lucide-react";
 import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+  CalendarHeart,
+  Clock,
+  Gift,
+  Globe,
+  Images,
+  MapPin,
+  Timer,
+  Volume2,
+  VolumeX,
+  type LucideIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { formatFullDate, formatTime, formatWeekday } from "@/lib/dates";
 import { DICTIONARIES, I18nContext, LOCALES, localize, type Lang } from "@/lib/i18n";
-import { textOf, type Invitation } from "@/lib/invitation";
+import { eventsFor, mainEventFor, textOf, type Invitation } from "@/lib/invitation";
 import { getTheme, themeStyle } from "@/lib/templates";
 import { Countdown } from "./Countdown";
+import { FallingPetals, SakuraBranch, Seigaiha } from "./Decor";
 import { IntroHero } from "./IntroHero";
-import { Rsvp } from "./Rsvp";
 import { SaveTheDate } from "./SaveTheDate";
 import { ScratchCard } from "./ScratchCard";
-import { Ornament, Section, WavyDivider } from "./Section";
+import { Ornament, Section, TONES } from "./Section";
 import { Slideshow } from "./Slideshow";
 import { Timeline } from "./Timeline";
 import { Venue } from "./Venue";
 
 const LANG_PARAM = "lang";
+const GROUP_PARAM = "for";
 
-// A shared link can pick the language: /invite/zaid-aisha?lang=ar
+// A shared link can pick the language and the guest group: /invite/zaid-aisha?for=family&lang=ar
 const noSubscribe = () => () => {};
 function readLangParam(): Lang | null {
   const v = new URLSearchParams(window.location.search).get(LANG_PARAM);
   return v === "ar" || v === "en" ? v : null;
+}
+function readGroupParam(): string | null {
+  return new URLSearchParams(window.location.search).get(GROUP_PARAM);
 }
 
 export function InvitationView({ invitation: base }: { invitation: Invitation }) {
@@ -40,6 +46,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
   // Language precedence: visitor's toggle, then ?lang= in the link, then the JSON default.
   const [chosen, setChosen] = useState<Lang | null>(null);
   const urlLang = useSyncExternalStore(noSubscribe, readLangParam, () => null);
+  const group = useSyncExternalStore(noSubscribe, readGroupParam, () => null);
   const lang: Lang = bilingual ? (chosen ?? urlLang ?? base.defaultLanguage ?? "en") : "en";
   const i18n = useMemo(() => ({ lang, t: DICTIONARIES[lang], locale: LOCALES[lang] }), [lang]);
   const { t, locale } = i18n;
@@ -95,137 +102,92 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
   const { groom, bride, brideFirst } = inv.couple;
   const [first, second] = brideFirst ? [bride, groom] : [groom, bride];
   const names = t.joinNames(first.name, second.name);
-  const transportation = textOf(inv.transportation);
-  const accommodation = textOf(inv.accommodation);
   const gifts = textOf(inv.gifts);
+  // Guests only see the events their link's group is invited to, and the date follows them.
+  const events = eventsFor(inv, group);
+  const main = mainEventFor(inv, events);
   const calendar = {
-    title: inv.event.title ?? t.weddingOf(names),
-    date: inv.event.date,
-    time: inv.event.time,
+    title: main.item ? t.eventOf(main.item.name, names) : (inv.event.title ?? t.weddingOf(names)),
+    date: main.date,
+    time: main.time,
     timezone: inv.event.timezone,
-    durationHours: inv.event.durationHours ?? 4,
+    durationHours: main.item ? 4 : (inv.event.durationHours ?? 4),
     location: inv.venue ? [inv.venue.name, inv.venue.address].filter(Boolean).join(", ") : undefined,
   };
 
-  // Each entry is one section; dividers are inserted between them.
-  const sections: { key: string; node: ReactNode }[] = [];
-  const add = (key: string, node: ReactNode) => sections.push({ key, node });
+  // Each entry is one card; they're numbered and tinted in order.
+  const sections: { key: string; icon: LucideIcon; title?: string; node: ReactNode }[] = [];
+  const add = (key: string, icon: LucideIcon, title: string | undefined, node: ReactNode) =>
+    sections.push({ key, icon, title, node });
 
   if (inv.scratchCard !== false) {
     add(
       "date",
-      <Section title={inv.scratchCard?.title ?? t.scratchTitle}>
+      CalendarHeart,
+      inv.scratchCard?.title ?? t.scratchTitle,
+      <>
         <ScratchCard
           theme={theme}
-          date={inv.event.date}
-          time={inv.event.time}
+          date={main.date}
+          time={main.time}
           label={inv.scratchCard?.revealLabel ?? t.youreInvited}
         />
         <SaveTheDate {...calendar} />
-      </Section>,
+      </>,
     );
   } else {
     add(
       "date",
-      <Section title={t.saveTheDate}>
-        <p className="font-display text-2xl font-bold text-foreground">{formatFullDate(inv.event.date, locale)}</p>
-        <p className="font-calligraphic text-lg text-primary">
-          {formatWeekday(inv.event.date, locale)} · {formatTime(inv.event.time, locale)}
+      CalendarHeart,
+      t.saveTheDate,
+      <>
+        <p className="font-display text-2xl font-semibold text-foreground">{formatFullDate(main.date, locale)}</p>
+        <p className="mt-1 font-calligraphic text-xl italic text-primary">
+          {formatWeekday(main.date, locale)} · {formatTime(main.time, locale)}
         </p>
         <SaveTheDate {...calendar} />
-      </Section>,
+      </>,
     );
   }
   if (inv.slideshow?.length) {
-    add(
-      "slides",
-      <Section>
-        <Ornament className="mb-8" />
-        <Slideshow images={inv.slideshow} />
-      </Section>,
-    );
+    const images = inv.slideshow;
+    add("slides", Images, undefined, <Slideshow images={images} />);
   }
   if (inv.countdown !== false) {
     add(
       "countdown",
-      <Section title={inv.countdown?.title ?? t.countdownTitle}>
-        <Countdown date={inv.event.date} time={inv.event.time} timezone={inv.event.timezone} />
-      </Section>,
+      Timer,
+      inv.countdown?.title ?? t.countdownTitle,
+      <Countdown date={main.date} time={main.time} timezone={inv.event.timezone} />,
     );
   }
-  if (inv.program?.items.length) {
-    add(
-      "program",
-      <Section icon={Clock} title={inv.program.title ?? t.program}>
-        <Timeline items={inv.program.items} />
-      </Section>,
-    );
+  if (events.length) {
+    add("program", Clock, inv.program?.title ?? t.program, <Timeline items={events} />);
   }
   if (inv.venue) {
+    const venue = inv.venue;
     add(
       "venue",
-      <Section icon={MapPin} title={t.venue}>
+      MapPin,
+      t.venue,
+      <>
         {/* The map always searches the original (English) name and address. */}
         <Venue
           venue={{
-            ...inv.venue,
+            ...venue,
             mapQuery: base.venue?.mapQuery ?? [base.venue?.name, base.venue?.address].filter(Boolean).join(", "),
             mapsUrl: base.venue?.mapsUrl,
           }}
         />
-      </Section>,
+      </>,
     );
   }
-  if (inv.dressCode && (inv.dressCode.women || inv.dressCode.men)) {
+  if (gifts) {
     add(
-      "dress",
-      <Section icon={Shirt} title={inv.dressCode.title ?? t.dressCode}>
-        <div className="mx-auto grid max-w-xl gap-8 md:grid-cols-2">
-          {(
-            [
-              [t.women, inv.dressCode.women],
-              [t.men, inv.dressCode.men],
-            ] as const
-          ).map(
-            ([label, text]) =>
-              text && (
-                <div key={label}>
-                  <h3 className="mb-3 font-display text-lg font-semibold text-primary">{label}</h3>
-                  <p className="text-sm leading-relaxed text-muted">{text}</p>
-                </div>
-              ),
-          )}
-        </div>
-      </Section>,
-    );
-  }
-  if (inv.preEvents?.items.length) {
-    add(
-      "pre",
-      <Section icon={PartyPopper} title={inv.preEvents.title ?? t.preEvents}>
-        <Timeline items={inv.preEvents.items} />
-      </Section>,
-    );
-  }
-  for (const [key, icon, fallback, value] of [
-    ["transport", Car, t.transportation, transportation],
-    ["stay", Hotel, t.accommodation, accommodation],
-    ["gifts", Gift, t.gifts, gifts],
-  ] as const) {
-    if (!value) continue;
-    add(
-      key,
-      <Section icon={icon} title={value.title ?? fallback}>
-        <p className="mx-auto max-w-xl whitespace-pre-line leading-relaxed text-muted">{value.text}</p>
-      </Section>,
-    );
-  }
-  if (inv.rsvp) {
-    add(
-      "rsvp",
-      <Section icon={Mail} title={inv.rsvp.title ?? t.rsvp}>
-        <Rsvp config={inv.rsvp} coupleNames={names} slug={inv.slug} />
-      </Section>,
+      "gifts",
+      Gift,
+      gifts.title ?? t.gifts,
+      <p className="mx-auto max-w-xl whitespace-pre-line leading-relaxed text-muted">{gifts.text}</p>,
     );
   }
 
@@ -235,7 +197,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
         lang={lang}
         dir={lang === "ar" ? "rtl" : "ltr"}
         style={themeStyle(theme)}
-        className="min-h-svh bg-page text-foreground"
+        className="min-h-svh bg-page font-body text-foreground"
       >
         {musicSrc && <audio ref={audioRef} src={musicSrc} loop preload="auto" />}
 
@@ -244,7 +206,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
             type="button"
             onClick={toggleMusic}
             aria-label={playing ? t.muteMusic : t.playMusic}
-            className="fixed right-4 top-4 z-50 flex size-10 items-center justify-center rounded-lg bg-primary/90 text-cream shadow-lg backdrop-blur transition hover:bg-primary"
+            className="fixed right-4 top-4 z-50 flex size-10 items-center justify-center rounded-full border border-white/80 bg-white/70 text-primary shadow-lg backdrop-blur transition hover:bg-white"
           >
             {playing ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
           </button>
@@ -255,7 +217,7 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
             type="button"
             onClick={toggleLang}
             lang={lang === "en" ? "ar" : "en"}
-            className="fixed bottom-4 left-4 z-50 flex h-10 items-center gap-2 rounded-full bg-cream/90 px-4 text-sm text-primary shadow-lg backdrop-blur transition hover:bg-cream"
+            className="fixed bottom-4 left-4 z-50 flex h-10 items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 text-sm text-primary shadow-lg backdrop-blur transition hover:bg-white"
           >
             <Globe className="size-4" />
             {t.switchTo}
@@ -263,63 +225,64 @@ export function InvitationView({ invitation: base }: { invitation: Invitation })
         )}
 
         <IntroHero
-          theme={theme}
           headline={inv.headline}
           first={first}
           second={second}
+          dateLabel={formatFullDate(main.date, locale)}
           onOpen={startMusic}
           onReveal={onReveal}
         />
 
-        <div className="@container">
-          <main
-            style={{
-              backgroundImage: `url(${theme.assets.welcomeBg}), url(${theme.assets.generalBg})`,
-              backgroundPosition: `top center, center ${theme.welcomeBgRatio * 100}cqw`,
-              backgroundRepeat: "no-repeat, repeat-y",
-              backgroundSize: "100% auto, 100% auto",
-            }}
-          >
-            {inv.welcomeMessage ? (
-              <section className="relative px-10 py-24 md:px-14 md:py-32">
-                <div className="mx-auto max-w-2xl text-center">
-                  <Ornament wide className="mb-8" />
-                  <p className="text-glow-soft whitespace-pre-wrap break-words font-calligraphic text-2xl italic leading-relaxed text-ink md:text-3xl">
-                    {inv.welcomeMessage}
-                  </p>
-                  <Ornament wide className="mt-8" />
-                </div>
-              </section>
-            ) : (
-              <div aria-hidden className="h-40 w-full md:h-56" />
-            )}
+        <FallingPetals />
 
-            {sections.map(({ key, node }) => (
-              <Fragment key={key}>
-                <WavyDivider />
-                {node}
-              </Fragment>
-            ))}
+        <main className="relative isolate overflow-hidden">
+          {/* Pastel wash behind the cards: soft color fields and paper grain. */}
+          <div aria-hidden className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 bg-gradient-to-b from-lilac/60 via-page to-mint/50" />
+            <div className="absolute -left-1/4 top-[8%] size-[90vw] max-w-[700px] rounded-full bg-blush/70 blur-3xl" />
+            <div className="absolute -right-1/4 top-[38%] size-[90vw] max-w-[700px] rounded-full bg-sky/70 blur-3xl" />
+            <div className="absolute -left-1/4 top-[68%] size-[90vw] max-w-[700px] rounded-full bg-butter/70 blur-3xl" />
+            <div className="washi absolute inset-0 opacity-25 mix-blend-multiply" />
+          </div>
 
-            <WavyDivider />
-            <footer
-              className="relative px-12 pb-[42cqw] pt-16 text-center md:pb-[28cqw] md:pt-20"
-              style={{
-                backgroundImage: `url(${theme.assets.endBg})`,
-                backgroundPosition: "bottom center",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "100% auto",
-              }}
-            >
-              <div className="mx-auto max-w-2xl">
-                <p className="mb-4 whitespace-pre-line font-script text-4xl leading-relaxed text-primary md:text-5xl">
-                  {inv.closing?.message ?? t.closing}
+          {inv.welcomeMessage ? (
+            <section className="relative px-8 pb-10 pt-20 md:px-14 md:pt-28">
+              <div className="mx-auto max-w-2xl text-center">
+                <Ornament wide className="mb-8" />
+                <p className="whitespace-pre-wrap break-words font-calligraphic text-2xl italic leading-relaxed text-ink md:text-3xl">
+                  {inv.welcomeMessage}
                 </p>
-                <p className="whitespace-pre-line font-script text-2xl text-muted">{inv.closing?.signature ?? names}</p>
+                <Ornament wide className="mt-8" />
               </div>
-            </footer>
-          </main>
-        </div>
+            </section>
+          ) : (
+            <div aria-hidden className="h-16 w-full md:h-24" />
+          )}
+
+          {sections.map(({ key, icon, title, node }, i) => (
+            <Section key={key} index={i + 1} tone={TONES[i % TONES.length]} icon={icon} title={title}>
+              {node}
+            </Section>
+          ))}
+
+          <footer className="relative mt-6 overflow-hidden pt-40 text-center md:pt-52">
+            <SakuraBranch className="pointer-events-none absolute -right-6 top-0 w-[60vw] max-w-[340px] opacity-90" />
+            <div className="relative mx-auto max-w-2xl px-10 pb-[30vw] md:pb-56">
+              <p className="mb-5 whitespace-pre-line font-display text-3xl leading-relaxed text-ink md:text-4xl">
+                {inv.closing?.message ?? t.closing}
+              </p>
+              <Ornament wide className="mb-5" />
+              <p className="whitespace-pre-line font-calligraphic text-2xl italic text-primary md:text-3xl rtl:font-names">
+                {inv.closing?.signature ?? names}
+              </p>
+            </div>
+            <Seigaiha
+              className="absolute inset-x-0 bottom-0 h-[26vw] max-h-44 w-full [mask-image:linear-gradient(to_bottom,transparent,black_45%)]"
+              colors={["var(--color-sky)", "var(--color-mint)"]}
+              size={1.3}
+            />
+          </footer>
+        </main>
       </div>
     </I18nContext>
   );
