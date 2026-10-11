@@ -1,0 +1,31 @@
+{
+  "template": "royal-grace",
+  "couple": {
+    "groom": {
+      "name": "Omar"
+    },
+    "bride": {
+      "name": "Layla"
+    }
+  },
+  "headline": "Together with their families",
+  "welcomeMessage": "Request the pleasure of your company at their Nikah ceremony.",
+  "event": {
+    "date": "2027-03-14",
+    "time": "18:00",
+    "timezone": "Asia/Kolkata"
+  },
+  "countdown": {
+    "title": "Counting Down to Forever"
+  },
+  "venue": {
+    "name": "Taj Lands End",
+    "address": "Bandstand, Bandra West, Mumbai"
+  },
+  "rsvp": {
+    "whatsappNumber": ""
+  },
+  "closing": {
+    "message": "We can't wait to celebrate with you!"
+  }
+}
