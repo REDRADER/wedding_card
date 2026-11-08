@@ -32,7 +32,7 @@ error tells you which field is wrong.
 
 | Field | Required | Notes |
 | --- | --- | --- |
-| `template` | yes | `"noor"` (arched cards) or `"sea"` (the evening as a sideways panorama by the sea). |
+| `template` | yes | `"noor"` (arched cards) or `"sea"` (the evening as a sideways panorama by the sea). Sea links take `?palette=pearl` (Emerald & Pearl, the default), `?palette=lapis` (Rose & Lapis) or `?palette=saffron` (Saffron & Jade). |
 | `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. The details appear in the "Bride & Groom" card. Optional `shortName` ("Zaid" for "Sayed Zaid") is used for the monogram. |
 | `couple.brideFirst` | | `true` puts the bride's name first. |
 | `event.date` / `event.time` / `event.timezone` | yes | `"2027-01-31"`, `"10:30"` (24h), `"Asia/Kolkata"`. Drives the scratch card, countdown and calendar links. |

@@ -6,18 +6,10 @@ import { I18nContext } from "@/lib/i18n";
 import type { Invitation } from "@/lib/invitation";
 import { useInvitation } from "../invitation/useInvitation";
 import { Arabic, Controls, details, Moon, moonAge, useDaysToGo, useMusic } from "./common";
+import { PALETTES, STARS, type Palette, type PaletteId, type Tone } from "./palettes";
 import s from "./sea.module.css";
 
-/** The sky over each panel, in the order the evening darkens. */
-const SKY = {
-  day: "#f6efdf",
-  dusk: "#8c2f39",
-  twilight: "#1d5c4a",
-  night: "#0f3d33",
-  deep: "#0a2a23",
-} as const;
-type Sky = keyof typeof SKY;
-type Panel = { key: string; label?: string; sky: Sky; body: ReactNode };
+type Panel = { key: string; label?: string; sky: Tone; body: ReactNode };
 
 // Layers slide at different speeds against the words: sea in front, skyline behind.
 const SEA_SPEED = 1.3;
@@ -26,6 +18,46 @@ const SKYLINE_SPEED = 0.55;
 const noSubscribe = () => () => {};
 // Today's moon depends on the visitor's clock, so it only appears after hydration.
 const tonight = () => Math.round(moonAge(Date.now()) * 10) / 10;
+// shortcut: ?palette= picks one of the palettes while the family chooses; drop it once one is chosen.
+const readPalette = (): PaletteId => {
+  const v = new URLSearchParams(window.location.search).get("palette");
+  return v && v in PALETTES ? (v as PaletteId) : "pearl";
+};
+
+/** WCAG relative luminance of a #rrggbb colour. */
+function luminance(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/**
+ * The page's colours at one moment of the evening, as CSS variables: the sky is a blend
+ * of two panels' skies, and the text takes whichever of the two panels' inks reads better
+ * on that blend, so words never sit grey-on-grey halfway between.
+ */
+function lightVars(pal: Palette, a: Tone, b: Tone, u: number): Record<string, string> {
+  const [ta, tb] = [pal.tones[a], pal.tones[b]];
+  // Two skies to blend between, and how far along: sunset to twilight goes via the afterglow.
+  let [from, to, f] = [ta.sky, tb.sky, u];
+  if (a === "dusk" && b === "twilight" && pal.afterglow) {
+    [from, to, f] = u < 0.5 ? [ta.sky, pal.afterglow, u * 2] : [pal.afterglow, tb.sky, u * 2 - 1];
+  }
+  const sky = luminance(from) + (luminance(to) - luminance(from)) * f;
+  const contrast = (hex: string) => {
+    const l = luminance(hex);
+    return (Math.max(l, sky) + 0.05) / (Math.min(l, sky) + 0.05);
+  };
+  const pick = (x: string, y: string) => (contrast(x) >= contrast(y) ? x : y);
+  return {
+    "--sky": `color-mix(in oklab, ${from} ${((1 - f) * 100).toFixed(1)}%, ${to})`,
+    "--ink": pick(ta.ink, tb.ink),
+    "--hi": pick(ta.hi, tb.hi),
+    "--stars": String(STARS[a] + (STARS[b] - STARS[a]) * u),
+  };
+}
 
 /** The wedding evening as one horizontal panorama by the Arabian Sea, from daylight to moonrise. */
 export function SeaView({ invitation: base }: { invitation: Invitation }) {
@@ -36,6 +68,9 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
   const daysToGo = useDaysToGo(d.main.date, d.main.time, inv.event.timezone);
   const todayAge = useSyncExternalStore(noSubscribe, tonight, () => null);
   const eventAge = moonAge(zonedToEpoch(d.main.date, d.main.time, inv.event.timezone));
+  const paletteId = useSyncExternalStore(noSubscribe, readPalette, () => "pearl" as PaletteId);
+  const pal = PALETTES[paletteId];
+  const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const strip = useRef<HTMLDivElement>(null);
   const sea = useRef<HTMLDivElement>(null);
@@ -45,7 +80,7 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
   const [current, setCurrent] = useState(0);
   const rtl = lang === "ar";
 
-  const eventSkies: Sky[] = ["twilight", "night"];
+  const eventSkies: Tone[] = ["twilight", "night"];
   const panels: Panel[] = [
     {
       key: "intro",
@@ -128,11 +163,11 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
           <h2 className={s.title}>{t.moonThatNight}</h2>
           <p className={s.text}>{d.hijri ?? d.fullDate}</p>
           <div className={s.moonRise} data-motion="rise" aria-hidden>
-            <Moon age={eventAge} dark="#14493d" className={s.moon} />
+            <Moon age={eventAge} dark="var(--moon-dark)" className={s.moon} />
           </div>
           {todayAge !== null && daysToGo !== null && daysToGo > 0 && (
             <div className={s.tonight}>
-              <Moon age={todayAge} dark="#14493d" className={s.moonSmall} />
+              <Moon age={todayAge} dark="var(--moon-dark)" className={s.moonSmall} />
               <p className={s.small}>
                 {t.moonTonight}
                 <br />
@@ -223,6 +258,17 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
       const at = els.findIndex((p) => x + vw / 2 >= leftOf(p) && x + vw / 2 < leftOf(p) + p.offsetWidth);
       if (at >= 0) setCurrent(at);
 
+      // One sky for the whole screen, no colour bands between panels. The point that sets the
+      // colour sweeps from the screen's left edge at the start to its right edge at the end,
+      // so the first screen is the first panel's sky and the last is the last panel's.
+      const mids = els.map((p) => leftOf(p) + p.offsetWidth / 2);
+      const centre = x + vw * (travel ? x / travel : 0);
+      const i = Math.max(0, mids.findLastIndex((m) => m <= centre));
+      const j = Math.min(els.length - 1, i + 1);
+      const u = i === j ? 0 : Math.min(1, Math.max(0, (centre - mids[i]) / (mids[j] - mids[i])));
+      const vars = lightVars(pal, els[i].dataset.tone as Tone, els[j].dataset.tone as Tone, u);
+      for (const [k, v] of Object.entries(vars)) root.current?.style.setProperty(k, v);
+
       // The sun sinks and the moon climbs while their panel crosses the screen (0 entering, 1 leaving).
       for (const node of row.querySelectorAll<HTMLElement>("[data-motion]")) {
         const panel = node.closest("section") as HTMLElement;
@@ -240,7 +286,7 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, [travel, rtl]);
+  }, [travel, rtl, pal]);
 
   function goTo(k: number) {
     const el = track.current;
@@ -253,11 +299,24 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
 
   return (
     <I18nContext value={i18n}>
-      <div lang={lang} dir={rtl ? "rtl" : "ltr"} className={s.root}>
+      <div
+        ref={root}
+        lang={lang}
+        dir={rtl ? "rtl" : "ltr"}
+        className={s.root}
+        style={
+          {
+            ...lightVars(pal, "day", "day", 0),
+            "--accent": pal.accent,
+            "--on-accent": pal.onAccent,
+            "--sun": pal.sun,
+            "--moon": pal.moon,
+            "--moon-dark": pal.moonDark,
+          } as CSSProperties
+        }
+      >
         <header className={s.bar}>
-          <p className={s.wordmark} data-light={current === 0 || undefined}>
-            {d.monogram}
-          </p>
+          <p className={s.wordmark}>{d.monogram}</p>
           <nav aria-label={t.program}>
             <ul>
               {panels.map((p, k) =>
@@ -276,13 +335,20 @@ export function SeaView({ invitation: base }: { invitation: Invitation }) {
         <div ref={track} className={s.track} style={{ height: `calc(100svh + ${travel}px)` }}>
           <div className={s.stage}>
             <div ref={strip} className={s.strip}>
-              {panels.map((p, k) => (
+              {panels.map((p) => (
                 <section
                   key={p.key}
-                  className={`${s.panel} ${s[p.sky] ?? ""}`}
+                  className={s.panel}
                   aria-label={p.label}
-                  // Each panel's sky runs into the next one's, so the evening has no seams.
-                  style={{ "--from": SKY[p.sky], "--to": SKY[panels[k + 1]?.sky ?? p.sky] } as CSSProperties}
+                  data-tone={p.sky}
+                  // Used only without motion, when every panel shows its own sky.
+                  style={
+                    {
+                      "--p-sky": pal.tones[p.sky].sky,
+                      "--p-ink": pal.tones[p.sky].ink,
+                      "--p-hi": pal.tones[p.sky].hi,
+                    } as CSSProperties
+                  }
                 >
                   {p.body}
                 </section>

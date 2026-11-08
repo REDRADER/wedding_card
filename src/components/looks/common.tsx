@@ -77,7 +77,7 @@ export function Moon({ age, className, dark }: { age: number; className?: string
   const term = waxing === gibbous ? 1 : 0;
   return (
     <svg viewBox="-50 -50 100 100" className={className} aria-hidden>
-      <circle r={r} fill={dark} />
+      <circle r={r} style={{ fill: dark }} />
       <path d={`M0 ${-r} A ${r} ${r} 0 0 ${limb} 0 ${r} A ${rx} ${r} 0 0 ${term} 0 ${-r} Z`} fill="currentColor" />
     </svg>
   );

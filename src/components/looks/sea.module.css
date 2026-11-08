@@ -1,18 +1,12 @@
-/* An evening by the sea: one sky from daylight to night, the shore and the sea sliding past at their own speeds. */
+/* An evening by the sea: one sky whose colour follows the scroll from daylight to night.
+   Colours arrive as variables from SeaView (palettes.ts): --sky, --ink, --hi, --stars, --accent, ... */
 .root {
-  --deep: #0a2a23;
-  --emerald: #0f3d33;
-  --dusk: #8c2f39;
-  --gold: #c9a24d;
-  --gold-l: #e6c97e;
-  --ivory: #f6efdf;
-  --ink: #1f2f28;
   --sea-h: 128px;
   --display: var(--font-cormorant), serif;
   --body: var(--font-garamond), serif;
   --names-ar: var(--font-aref-ruqaa), var(--font-amiri), serif;
-  background: var(--deep);
-  color: var(--ivory);
+  background: var(--sky);
+  color: var(--ink);
   font-family: var(--body);
   font-variant-numeric: lining-nums;
 }
@@ -35,11 +29,6 @@
   font-family: var(--display);
   font-size: 26px;
   font-weight: 500;
-  color: var(--ivory);
-  transition: color 0.4s ease;
-}
-.wordmark[data-light] {
-  color: var(--emerald);
 }
 .bar ul {
   display: flex;
@@ -49,16 +38,16 @@
 }
 .bar button {
   font-size: 17px;
-  color: var(--ivory);
+  color: var(--sky);
   padding: 6px 14px;
   border-radius: 999px;
-  background: var(--emerald);
+  background: var(--ink);
   transition: background 0.2s ease, color 0.2s ease;
 }
 .bar button:hover,
 .bar button[aria-current] {
-  background: var(--gold);
-  color: var(--emerald);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .track {
@@ -79,15 +68,26 @@
   top: 0;
   height: 100svh;
   overflow: hidden;
+  background: var(--sky);
 }
 .strip {
+  position: relative;
   display: flex;
   height: 100%;
   width: max-content;
   will-change: transform;
 }
+/* Stars come out as the sky darkens. */
+.strip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--stars);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='180'%3E%3Cg fill='%23f3e3b4'%3E%3Ccircle cx='18' cy='22' r='1.2' opacity='.7'/%3E%3Ccircle cx='96' cy='60' r='.9' opacity='.5'/%3E%3Ccircle cx='160' cy='14' r='1.4' opacity='.8'/%3E%3Ccircle cx='200' cy='96' r='1' opacity='.5'/%3E%3Ccircle cx='60' cy='130' r='1.1' opacity='.6'/%3E%3Ccircle cx='132' cy='150' r='.8' opacity='.4'/%3E%3C/g%3E%3C/svg%3E")
+    0 0 / 220px 180px;
+  pointer-events: none;
+}
 
-/* The sky: solid behind the words, then blending into the next panel's colour. */
 .panel {
   position: relative;
   flex: 0 0 min(40vw, 600px);
@@ -96,32 +96,21 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background: linear-gradient(90deg, var(--from) 0 62%, var(--to) 100%);
-}
-.root[dir="rtl"] .panel {
-  background: linear-gradient(270deg, var(--from) 0 62%, var(--to) 100%);
 }
 .panel:first-child {
   flex-basis: min(100vw, 760px);
   justify-content: flex-end;
 }
-.day {
-  color: var(--ink);
-}
-.night,
-.deep {
-  /* A scatter of stars once the sun is down. */
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='180'%3E%3Cg fill='%23e6c97e'%3E%3Ccircle cx='18' cy='22' r='1.2' opacity='.7'/%3E%3Ccircle cx='96' cy='60' r='.9' opacity='.5'/%3E%3Ccircle cx='160' cy='14' r='1.4' opacity='.8'/%3E%3Ccircle cx='200' cy='96' r='1' opacity='.5'/%3E%3Ccircle cx='60' cy='130' r='1.1' opacity='.6'/%3E%3Ccircle cx='132' cy='150' r='.8' opacity='.4'/%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(90deg, var(--from) 0 62%, var(--to) 100%);
-  background-size: 220px 180px, auto;
-  background-repeat: repeat, no-repeat;
+/* Text colour flips between light and dark ink as the sky passes the middle; ease the flip. */
+.panel,
+.panel :is(.arNames, .time, .verse, .with, .dua) {
+  transition: color 0.5s ease;
 }
 
 .arNames {
   font-family: var(--names-ar);
   font-size: 40px;
-  color: var(--dusk);
+  color: var(--hi);
 }
 .hero {
   font-family: var(--display);
@@ -129,7 +118,6 @@
   font-size: clamp(72px, 9vw, 140px);
   line-height: 0.9;
   letter-spacing: -0.02em;
-  color: var(--emerald);
 }
 .title {
   font-family: var(--display);
@@ -140,7 +128,7 @@
 }
 .time {
   font-size: 22px;
-  color: var(--gold-l);
+  color: var(--hi);
 }
 .lead {
   font-family: var(--display);
@@ -162,8 +150,8 @@
   align-self: flex-start;
   padding: 10px 20px;
   border-radius: 999px;
-  background: var(--emerald);
-  color: var(--ivory);
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 17px;
 }
 .figure {
@@ -173,7 +161,7 @@
 .verse {
   font-size: clamp(30px, 2.6vw, 42px);
   line-height: 1.8;
-  color: var(--gold-l);
+  color: var(--hi);
 }
 
 /* The sun is cut off at the horizon, so it sinks into the sea rather than over it. */
@@ -193,7 +181,7 @@
   height: 220px;
   margin-left: -110px;
   border-radius: 50%;
-  background: var(--gold-l);
+  background: var(--sun);
   will-change: transform;
 }
 
@@ -213,7 +201,7 @@
   font-style: italic;
   font-size: 26px;
   margin: 8px 0;
-  color: var(--gold-l);
+  color: var(--hi);
 }
 .moonRise {
   margin: auto auto 0;
@@ -222,7 +210,7 @@
 }
 .moon {
   width: 100%;
-  color: #f2e2b0;
+  color: var(--moon);
 }
 .tonight {
   display: flex;
@@ -231,12 +219,12 @@
 }
 .moonSmall {
   width: 52px;
-  color: #f2e2b0;
+  color: var(--moon);
 }
 .dua {
   font-size: clamp(26px, 2.2vw, 34px);
   line-height: 1.9;
-  color: var(--gold-l);
+  color: var(--hi);
 }
 .signature {
   font-family: var(--display);
@@ -259,8 +247,8 @@
   min-height: 44px;
   padding: 0 22px;
   border-radius: 999px;
-  background: var(--gold);
-  color: var(--emerald);
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 17px;
   transition: transform 0.2s ease;
 }
@@ -272,7 +260,7 @@
 }
 .button:focus-visible,
 .bar button:focus-visible {
-  outline: 3px solid var(--gold-l);
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -282,32 +270,37 @@
   left: 0;
   bottom: calc(var(--sea-h) - 6px);
   height: 120px;
-  color: var(--gold);
+  color: var(--accent);
   opacity: 0.85;
   pointer-events: none;
   will-change: transform;
 }
 .root[dir="rtl"] .skyline,
 .root[dir="rtl"] .sea {
-  left: auto;
-  right: 0;
-}
-.sea {
   position: absolute;
   left: 0;
   bottom: 0;
   height: var(--sea-h);
   pointer-events: none;
   will-change: transform;
-  background-color: rgba(10, 42, 35, 0.92);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='32'%3E%3Cpath d='M0 16 Q12 6 24 16 T48 16' fill='none' stroke='%23c9a24d' stroke-width='1.6'/%3E%3C/svg%3E");
-  background-size: 48px 32px;
-  background-position: 0 6px;
+  /* The sea is the sky, darker. */
+  background: color-mix(in oklab, var(--sky) 55%, #000);
+}
+.sea::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='32'%3E%3Cpath d='M0 16 Q12 6 24 16 T48 16' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+    0 6px / 48px 32px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='32'%3E%3Cpath d='M0 16 Q12 6 24 16 T48 16' fill='none' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E")
+    0 6px / 48px 32px;
   animation: swell 9s linear infinite;
 }
 @keyframes swell {
   to {
-    background-position: 48px 6px;
+    -webkit-mask-position: 48px 6px;
+    mask-position: 48px 6px;
   }
 }
 
@@ -337,8 +330,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sea {
+  .sea::before {
     animation: none;
+  }
+  /* Without motion each panel shows its own sky. */
+  .panel {
+    --ink: var(--p-ink);
+    --hi: var(--p-hi);
+    background: var(--p-sky);
+    color: var(--ink);
   }
   .track {
     height: auto !important;
