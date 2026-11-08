@@ -1,0 +1,364 @@
+/* An evening by the sea: one sky from daylight to night, the shore and the sea sliding past at their own speeds. */
+.root {
+  --deep: #0a2a23;
+  --emerald: #0f3d33;
+  --dusk: #8c2f39;
+  --gold: #c9a24d;
+  --gold-l: #e6c97e;
+  --ivory: #f6efdf;
+  --ink: #1f2f28;
+  --sea-h: 128px;
+  --display: var(--font-cormorant), serif;
+  --body: var(--font-garamond), serif;
+  --names-ar: var(--font-aref-ruqaa), var(--font-amiri), serif;
+  background: var(--deep);
+  color: var(--ivory);
+  font-family: var(--body);
+  font-variant-numeric: lining-nums;
+}
+.root[lang="ar"] {
+  --display: var(--font-aref-ruqaa), var(--font-amiri), serif;
+  --body: var(--font-amiri), serif;
+}
+
+.bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 32px;
+}
+.wordmark {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--ivory);
+  transition: color 0.4s ease;
+}
+.wordmark[data-light] {
+  color: var(--emerald);
+}
+.bar ul {
+  display: flex;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+}
+.bar button {
+  font-size: 17px;
+  color: var(--ivory);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--emerald);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.bar button:hover,
+.bar button[aria-current] {
+  background: var(--gold);
+  color: var(--emerald);
+}
+
+.track {
+  position: relative;
+}
+.snaps {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.snap {
+  position: absolute;
+  height: 1px;
+  scroll-snap-align: start;
+}
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.strip {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  will-change: transform;
+}
+
+/* The sky: solid behind the words, then blending into the next panel's colour. */
+.panel {
+  position: relative;
+  flex: 0 0 min(40vw, 600px);
+  height: 100%;
+  padding: 96px 48px calc(var(--sea-h) + 136px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: linear-gradient(90deg, var(--from) 0 62%, var(--to) 100%);
+}
+.root[dir="rtl"] .panel {
+  background: linear-gradient(270deg, var(--from) 0 62%, var(--to) 100%);
+}
+.panel:first-child {
+  flex-basis: min(100vw, 760px);
+  justify-content: flex-end;
+}
+.day {
+  color: var(--ink);
+}
+.night,
+.deep {
+  /* A scatter of stars once the sun is down. */
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='180'%3E%3Cg fill='%23e6c97e'%3E%3Ccircle cx='18' cy='22' r='1.2' opacity='.7'/%3E%3Ccircle cx='96' cy='60' r='.9' opacity='.5'/%3E%3Ccircle cx='160' cy='14' r='1.4' opacity='.8'/%3E%3Ccircle cx='200' cy='96' r='1' opacity='.5'/%3E%3Ccircle cx='60' cy='130' r='1.1' opacity='.6'/%3E%3Ccircle cx='132' cy='150' r='.8' opacity='.4'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(90deg, var(--from) 0 62%, var(--to) 100%);
+  background-size: 220px 180px, auto;
+  background-repeat: repeat, no-repeat;
+}
+
+.arNames {
+  font-family: var(--names-ar);
+  font-size: 40px;
+  color: var(--dusk);
+}
+.hero {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(72px, 9vw, 140px);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--emerald);
+}
+.title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(44px, 4.4vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.time {
+  font-size: 22px;
+  color: var(--gold-l);
+}
+.lead {
+  font-family: var(--display);
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 1.25;
+  max-width: 24ch;
+}
+.text {
+  font-size: 20px;
+  line-height: 1.45;
+  max-width: 34ch;
+}
+.small {
+  font-size: 17px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+.hint {
+  align-self: flex-start;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--emerald);
+  color: var(--ivory);
+  font-size: 17px;
+}
+.figure {
+  display: grid;
+  gap: 12px;
+}
+.verse {
+  font-size: clamp(30px, 2.6vw, 42px);
+  line-height: 1.8;
+  color: var(--gold-l);
+}
+
+/* The sun is cut off at the horizon, so it sinks into the sea rather than over it. */
+.horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--sea-h);
+  height: 240px;
+  overflow: hidden;
+}
+.sun {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 220px;
+  height: 220px;
+  margin-left: -110px;
+  border-radius: 50%;
+  background: var(--gold-l);
+  will-change: transform;
+}
+
+.families {
+  display: grid;
+  gap: 6px;
+  margin-top: auto;
+}
+.person {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(38px, 3.4vw, 56px);
+  line-height: 1;
+}
+.with {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 26px;
+  margin: 8px 0;
+  color: var(--gold-l);
+}
+.moonRise {
+  margin: auto auto 0;
+  width: min(60%, 280px);
+  will-change: transform;
+}
+.moon {
+  width: 100%;
+  color: #f2e2b0;
+}
+.tonight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.moonSmall {
+  width: 52px;
+  color: #f2e2b0;
+}
+.dua {
+  font-size: clamp(26px, 2.2vw, 34px);
+  line-height: 1.9;
+  color: var(--gold-l);
+}
+.signature {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(48px, 4.6vw, 76px);
+  line-height: 1;
+  margin-top: auto;
+}
+.map {
+  width: 100%;
+  flex: 1;
+  min-height: 160px;
+  border: 0;
+  background: #e8dfc9;
+}
+.button {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--emerald);
+  font-size: 17px;
+  transition: transform 0.2s ease;
+}
+.families .button {
+  justify-self: start;
+}
+.button:hover {
+  transform: translateY(-2px);
+}
+.button:focus-visible,
+.bar button:focus-visible {
+  outline: 3px solid var(--gold-l);
+  outline-offset: 3px;
+}
+
+/* The shore and the sea are their own layers over the panels. */
+.skyline {
+  position: absolute;
+  left: 0;
+  bottom: calc(var(--sea-h) - 6px);
+  height: 120px;
+  color: var(--gold);
+  opacity: 0.85;
+  pointer-events: none;
+  will-change: transform;
+}
+.root[dir="rtl"] .skyline,
+.root[dir="rtl"] .sea {
+  left: auto;
+  right: 0;
+}
+.sea {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: var(--sea-h);
+  pointer-events: none;
+  will-change: transform;
+  background-color: rgba(10, 42, 35, 0.92);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='32'%3E%3Cpath d='M0 16 Q12 6 24 16 T48 16' fill='none' stroke='%23c9a24d' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-size: 48px 32px;
+  background-position: 0 6px;
+  animation: swell 9s linear infinite;
+}
+@keyframes swell {
+  to {
+    background-position: 48px 6px;
+  }
+}
+
+@media (max-width: 760px) {
+  .root {
+    --sea-h: 96px;
+  }
+  .bar {
+    padding: 12px 16px;
+  }
+  .bar nav {
+    display: none;
+  }
+  .panel,
+  .panel:first-child {
+    flex-basis: 100vw;
+    padding: 72px 20px calc(var(--sea-h) + 96px);
+  }
+  .sun {
+    width: 170px;
+    height: 170px;
+    margin-left: -85px;
+  }
+  .skyline {
+    height: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sea {
+    animation: none;
+  }
+  .track {
+    height: auto !important;
+  }
+  .stage {
+    position: static;
+    height: auto;
+  }
+  .strip {
+    flex-direction: column;
+    width: auto;
+  }
+  .panel,
+  .panel:first-child {
+    flex-basis: auto;
+    min-height: 100svh;
+  }
+  .skyline,
+  .sea,
+  .snaps {
+    display: none;
+  }
+}
