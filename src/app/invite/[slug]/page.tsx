@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { InvitationView } from "@/components/invitation/InvitationView";
+import { SeaView } from "@/components/looks/SeaView";
 import { formatFullDate } from "@/lib/dates";
-import { coupleNames } from "@/lib/invitation";
+import { coupleNames, type Invitation as InvitationData, type TemplateId } from "@/lib/invitation";
 import { getInvitation, listInvitationSlugs } from "@/lib/load-invitations";
+
+const VIEWS: Record<TemplateId, (props: { invitation: InvitationData }) => ReactNode> = {
+  noor: InvitationView,
+  sea: SeaView,
+};
 
 export function generateStaticParams() {
   return listInvitationSlugs().map((slug) => ({ slug }));
@@ -39,5 +45,6 @@ async function Invitation({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const invitation = getInvitation(slug);
   if (!invitation) notFound();
-  return <InvitationView invitation={invitation} />;
+  const View = VIEWS[invitation.template];
+  return <View invitation={invitation} />;
 }

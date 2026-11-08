@@ -35,6 +35,18 @@ const en = {
   joinNames: (a: string, b: string) => `${a} & ${b}`,
   weddingOf: (names: string) => `${names} - Wedding`,
   eventOf: (event: string, names: string) => `${event} - ${names}`,
+  // Sea template
+  invitesYou: "is delighted to invite you to the Nikah of their son",
+  daughterWith: "with",
+  addToCalendar: "Add to calendar",
+  openInMaps: "Open in Maps",
+  scrollEvening: "Scroll through the evening",
+  daysToGo: (n: number) => (n === 1 ? "Tomorrow" : `In ${n} days`),
+  sunset: "Sunset over the Arabian Sea",
+  aboutSix: "About 6:00 PM",
+  moonThatNight: "The moon that night",
+  moonTonight: "The moon tonight",
+  duas: "Duas",
 };
 
 export type Dictionary = typeof en;
@@ -70,6 +82,17 @@ const ar: Dictionary = {
   joinNames: (a, b) => `${a} و${b}`,
   weddingOf: (names) => `زفاف ${names}`,
   eventOf: (event, names) => `${event} - ${names}`,
+  invitesYou: "يسرّها دعوتكم لحضور عقد قران ابنها",
+  daughterWith: "على",
+  addToCalendar: "أضف إلى التقويم",
+  openInMaps: "افتح في الخرائط",
+  scrollEvening: "مرّر عبر الأمسية",
+  daysToGo: (n) => (n === 1 ? "غداً" : `بعد ${n} يوماً`),
+  sunset: "غروب الشمس على بحر العرب",
+  aboutSix: "نحو السادسة مساءً",
+  moonThatNight: "القمر في تلك الليلة",
+  moonTonight: "القمر الليلة",
+  duas: "الدعاء",
 };
 
 export const DICTIONARIES: Record<Lang, Dictionary> = { en, ar };

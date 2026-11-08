@@ -32,13 +32,16 @@ error tells you which field is wrong.
 
 | Field | Required | Notes |
 | --- | --- | --- |
-| `template` | yes | `"noor"` |
-| `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. The details appear in the "Bride & Groom" card. |
+| `template` | yes | `"noor"` (arched cards) or `"sea"` (the evening as a sideways panorama by the sea). |
+| `couple.groom` / `couple.bride` | yes | `{ "name": "Zaid", "details": "Son of ...\nB.E." }`. `\n` starts a new line. The details appear in the "Bride & Groom" card. Optional `shortName` ("Zaid" for "Sayed Zaid") is used for the monogram. |
 | `couple.brideFirst` | | `true` puts the bride's name first. |
 | `event.date` / `event.time` / `event.timezone` | yes | `"2027-01-31"`, `"10:30"` (24h), `"Asia/Kolkata"`. Drives the scratch card, countdown and calendar links. |
 | `event.title`, `event.durationHours` | | Used for "Save the Date" calendar entries (default 4 hours). |
+| `event.hijri` | | The Hijri date as the family writes it, e.g. `"20 Jumada al-Thani 1448"`. Sea only. |
 | `bismillah` | | `false` hides the Bismillah above the couple (shown by default). |
 | `headline` | | Line above the names, e.g. "We're getting married". |
+| `hosts` | | Who sends the invitation, e.g. `"The Sayed Family"`. Sea only. |
+| `duas` | | `[{ "arabic", "translation"? }]`, shown near the end. Sea only. |
 | `verse` | | `{ "arabic", "translation"?, "reference"? }`: a Quran verse above the welcome message. The Arabic shows in both languages, the translation only in English. |
 | `welcomeMessage` | | First section after the hero. |
 | `scratchCard` | | `{ "title", "revealLabel" }`, or `false` to show a plain date instead. |

@@ -26,6 +26,10 @@ export type InvitationData = {
   verse?: { arabic: string; translation?: string; reference?: string };
   /** Small line above the names, e.g. "We're getting married". */
   headline?: string;
+  /** Who sends the invitation, e.g. "The Sayed Family". */
+  hosts?: string;
+  /** Duas shown near the end. `arabic` is shown in both languages. */
+  duas?: { arabic: string; translation?: string }[];
   welcomeMessage?: string;
   event: {
     /** YYYY-MM-DD */
@@ -37,6 +41,8 @@ export type InvitationData = {
     /** Used for "Save the date" calendar entries. */
     title?: string;
     durationHours?: number;
+    /** The Hijri date as the family writes it, e.g. "20 Jumada al-Thani 1448". */
+    hijri?: string;
   };
   scratchCard?: { title?: string; revealLabel?: string } | false;
   slideshow?: string[];
@@ -60,7 +66,7 @@ export type InvitationData = {
   music?: { enabled?: boolean; src?: string };
 };
 
-export type TemplateId = "noor";
+export type TemplateId = "noor" | "sea";
 
 type DeepPartial<T> = T extends string
   ? string
@@ -76,6 +82,8 @@ export type Translation = DeepPartial<
     | "seo"
     | "couple"
     | "headline"
+    | "hosts"
+    | "duas"
     | "verse"
     | "welcomeMessage"
     | "scratchCard"
@@ -85,9 +93,14 @@ export type Translation = DeepPartial<
     | "gifts"
     | "closing"
   >
-> & { event?: { title?: string } };
+> & { event?: { title?: string; hijri?: string } };
 
-export type Person = { name: string; details?: string };
+export type Person = {
+  name: string;
+  /** First name for monograms and short lines, e.g. "Zaid" for "Sayed Zaid". Defaults to `name`. */
+  shortName?: string;
+  details?: string;
+};
 
 export type ScheduleItem = {
   /** Referenced by `guestGroups`. Required once guest groups are used. */
@@ -105,7 +118,7 @@ export type TextSection = string | { title?: string; text: string };
 
 export type Invitation = InvitationData & { slug: string };
 
-export const TEMPLATE_IDS: TemplateId[] = ["noor"];
+export const TEMPLATE_IDS: TemplateId[] = ["noor", "sea"];
 
 export function textOf(section: TextSection | undefined): { title?: string; text: string } | null {
   if (!section) return null;

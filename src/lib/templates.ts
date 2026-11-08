@@ -57,8 +57,10 @@ const noor: TemplateTheme = {
   confetti: ["#8c2f39", "#c0485a", "#e6c97e", "#f3b6be", "#b8893b"],
 };
 
+// Sea styles itself; it shares Noor's music.
 const TEMPLATES: Record<TemplateId, TemplateTheme> = {
   noor,
+  sea: noor,
 };
 
 export function getTheme(id: TemplateId): TemplateTheme {

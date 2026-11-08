@@ -24,7 +24,7 @@ function stamp(ms: number) {
     .replace(/\.\d{3}/, "");
 }
 
-function links({ title, date, time, timezone, durationHours, location = "", details = "" }: Props) {
+export function calendarLinks({ title, date, time, timezone, durationHours, location = "", details = "" }: Props) {
   const start = zonedToEpoch(date, time, timezone);
   const end = start + durationHours * 3_600_000;
   const google = new URL("https://calendar.google.com/calendar/render");
@@ -84,7 +84,7 @@ export function SaveTheDate(props: Props) {
   }, [open]);
 
   function downloadIcs() {
-    const blob = new Blob([links(props).ics], { type: "text/calendar;charset=utf-8" });
+    const blob = new Blob([calendarLinks(props).ics], { type: "text/calendar;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${props.title.replace(/[^\w]+/g, "-").toLowerCase()}.ics`;
@@ -117,10 +117,10 @@ export function SaveTheDate(props: Props) {
             transition={{ duration: 0.18 }}
             className="absolute left-1/2 z-30 mt-2 w-56 -translate-x-1/2 overflow-hidden rounded-2xl border border-field-border bg-cream py-1 shadow-xl"
           >
-            <a role="menuitem" className={item} href={links(props).google} target="_blank" rel="noreferrer">
+            <a role="menuitem" className={item} href={calendarLinks(props).google} target="_blank" rel="noreferrer">
               {t.googleCalendar}
             </a>
-            <a role="menuitem" className={item} href={links(props).outlook} target="_blank" rel="noreferrer">
+            <a role="menuitem" className={item} href={calendarLinks(props).outlook} target="_blank" rel="noreferrer">
               {t.outlook}
             </a>
             <button role="menuitem" type="button" className={item} onClick={downloadIcs}>

@@ -13,9 +13,9 @@ import {
   VolumeX,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { formatFullDate, formatTime, formatWeekday } from "@/lib/dates";
-import { DICTIONARIES, I18nContext, LOCALES, localize, type Lang } from "@/lib/i18n";
+import { I18nContext } from "@/lib/i18n";
 import { eventsFor, mainEventFor, textOf, type Invitation } from "@/lib/invitation";
 import { getTheme, themeStyle } from "@/lib/templates";
 import { Countdown } from "./Countdown";
@@ -26,48 +26,17 @@ import { ScratchCard } from "./ScratchCard";
 import { Ornament, Section } from "./Section";
 import { Slideshow } from "./Slideshow";
 import { Timeline } from "./Timeline";
+import { useInvitation } from "./useInvitation";
 import { Venue } from "./Venue";
-
-const LANG_PARAM = "lang";
-const GROUP_PARAM = "for";
-
-// A shared link can pick the language and the guest group: /invite/zaid-aisha?for=family&lang=ar
-const noSubscribe = () => () => {};
-function readLangParam(): Lang | null {
-  const v = new URLSearchParams(window.location.search).get(LANG_PARAM);
-  return v === "ar" || v === "en" ? v : null;
-}
-function readGroupParam(): string | null {
-  return new URLSearchParams(window.location.search).get(GROUP_PARAM);
-}
 
 export function InvitationView({ invitation: base }: { invitation: Invitation }) {
   const theme = getTheme(base.template);
-  const bilingual = Boolean(base.ar);
-  // Language precedence: visitor's toggle, then ?lang= in the link, then the JSON default.
-  const [chosen, setChosen] = useState<Lang | null>(null);
-  const urlLang = useSyncExternalStore(noSubscribe, readLangParam, () => null);
-  const group = useSyncExternalStore(noSubscribe, readGroupParam, () => null);
-  const lang: Lang = bilingual ? (chosen ?? urlLang ?? base.defaultLanguage ?? "en") : "en";
-  const i18n = useMemo(() => ({ lang, t: DICTIONARIES[lang], locale: LOCALES[lang] }), [lang]);
+  const { inv, i18n, lang, bilingual, group, toggleLang } = useInvitation(base);
   const { t, locale } = i18n;
-  const inv = useMemo(() => localize(base, lang), [base, lang]);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [revealed, setRevealed] = useState(false);
   const [playing, setPlaying] = useState(false);
   const musicSrc = base.music?.enabled === false ? null : (inv.music?.src ?? theme.assets.music);
-
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
-
-  function toggleLang() {
-    const next: Lang = lang === "en" ? "ar" : "en";
-    setChosen(next);
-    const url = new URL(window.location.href);
-    url.searchParams.set(LANG_PARAM, next);
-    history.replaceState(history.state, "", url);
-  }
 
   // Keep the page pinned to the intro until the hero text appears.
   useEffect(() => {
